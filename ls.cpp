@@ -85,7 +85,6 @@ int LS::calcLS() {
             //    qDebug() << "TSLen: " << N;
 
             int coeffsNum = P*M;
-
             QList<matrix<double> > Ar;
             for (int i = 0; i < P; i++) {
                 matrix<double> Ari(M, M);
@@ -96,7 +95,6 @@ int LS::calcLS() {
                 }
                 Ar.append(Ari);
             }
-
             matrix<double> C (coeffsNum, coeffsNum);
             for (int j = 0; j < coeffsNum; j++) {
                 for (int k = 0; k < coeffsNum; k++) {
@@ -180,7 +178,6 @@ int LS::calcLS() {
                 }
 
             }
-
             QVector<int> Ps;
             for (int i = 0; i < P; i++) Ps << (i+1);
             QVector<int> Ss;
@@ -188,7 +185,6 @@ int LS::calcLS() {
             QVector<QVector<double> > Residuals;
 
             cmtObj->calcResiduals(Ar, Ps, Ss, Sh, Residuals);
-
             for (int ts = 0; ts < M; ts++) {
                 QFile res_out(QString("./%1/residuals_p=%2_s=%3_ts=%4.txt")
                               .arg(baseDir)
@@ -199,13 +195,11 @@ int LS::calcLS() {
                     return -1;
 
                 QTextStream out_res(&res_out);
-
                 for (int i = 0; i < Residuals.at(ts).count(); i++) {
                     out_res << QString("%1\n").arg(Residuals.at(ts).at(i), 13, 'E', 6, ' ');
                 }
                 res_out.close();
             }
-
             (*ls_coeffs_list)[Pi] = Ar;
             Pi++;
         }

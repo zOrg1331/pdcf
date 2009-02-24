@@ -93,7 +93,7 @@ void PDCF::calcPDCF() {
                 } else {
                     thr1.wait();
                 }
-                QString str = QString("PDC: estimating R: estimated %1 of %2 blocksof %3 system").arg(i+1).arg(N).arg(Ari);
+                QString str = QString("PDC: estimating R: estimated %1 of %2 blocks of %3 system").arg(i+1).arg(N).arg(Ari);
                 emit infoMsg(str);
                 //for (int j = 0; j < N; j += 2) {
                 //                for (int k = 0; k < P; k++) {

@@ -191,7 +191,7 @@ int CommonMathTools::calcResiduals(const QList<matrix<double> >& Ar,
             double x_mine = 0;
             for (int s1 = 0; s1 < Ss.count(); s1++) {
                 for (int p = 0; p < Ps.count(); p++) {
-                    x_mine += getTSvalue(Ss.at(s1), i-Ps.at(p))*Ar.at(p)(Ss.at(s), Ss.at(s1) -Sh);
+                    x_mine += getTSvalue(Ss.at(s1), i-Ps.at(p))*Ar.at(p)(Ss.at(s), Ss.at(s1)) -Sh;
                 }
             }
             double x = getTSvalue(Ss.at(s), i);
