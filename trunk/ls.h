@@ -36,13 +36,10 @@ signals:
 private:
     int calcLS();
 
-    double calcPhi(CommonMathTools *cmtObj,
-                   const int & TSNum,
+    double calcPhi(const int & TSNum,
                    const int & Nu,
                    const int & P,
                    const int & S,
-                   const matrix<double> & Lags,
-                   const matrix<double> & Shifts,
                    const int & index,
                    const int & num);
 
