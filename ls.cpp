@@ -36,13 +36,10 @@ void LS::run() {
     calcLS();
 }
 
-double LS::calcPhi(CommonMathTools *cmtObj,
-                   const int & TSNum,
+double LS::calcPhi(const int & TSNum,
                    const int & Nu,
                    const int & P,
                    const int & S,
-                   const matrix<double> & Lags,
-                   const matrix<double> & Shifts,
                    const int & index,
                    const int & num) {
 
@@ -63,8 +60,7 @@ double LS::calcPhi(CommonMathTools *cmtObj,
                                     num-
                                     //Lags(TSNum, ip)*
                                     (index-ip*P+1)/*-
-                                    Shifts(TSNum, ip)*/-
-                                                       S);
+                                    Shifts(TSNum, ip)*/-S);
             return x1;
         } else {
             return 0;
@@ -149,8 +145,8 @@ int LS::calcLS() {
                     double x1B, x2B;
 
                     for (int n = 0; n < N; n++) {
-                        x1B = calcPhi(cmtObj, TSNum, 1, P, Sh, Lags, Shifts, row, n);
-                        x2B = calcPhi(cmtObj, TSNum, 1, P, Sh, Lags, Shifts,  -1, n);
+                        x1B = calcPhi(TSNum, 1, P, Sh, row, n);
+                        x2B = calcPhi(TSNum, 1, P, Sh,  -1, n);
                         summB += x1B*x2B;
                     }
                     B(row) = summB;
