@@ -369,7 +369,7 @@ void MainWindow::printResult() {
             out_plot << "\nset style data lines\n";
             out_plot << "\nset multiplot\n";
             out_plot << "\nset xrange [" << freqFrom << ":" << freqTo << "]\n";
-            out_plot << "\nset yrange [0:1.1]\n\n";
+            out_plot << "\nset yrange [0:]\n\n";
 
             // номер столбца значений PDCF
             int k = 2;
@@ -403,8 +403,8 @@ void MainWindow::printResult() {
                         str += ")\n";
                         out_plot << str;
                     }
-                    out_plot << "plot 'pdc" << "_p=" << p << "_s=" << s << ".txt' using 1:" << (k  ) << " lc 3 notitle\n";
-                    out_plot << "plot 'pdc" << "_p=" << p << "_s=" << s << ".txt' using 1:" << (k+1) << " lc 0 notitle\n\n";
+                    out_plot << "plot 'pdc" << "_p=" << p << "_s=" << s << ".txt' using 1:" << (k  ) << " lc 3 notitle,\\\n";
+                    out_plot << "     'pdc" << "_p=" << p << "_s=" << s << ".txt' using 1:" << (k+1) << " lc 0 notitle\n\n";
                     k += 2;
                 }
             }
