@@ -55,6 +55,8 @@ private:
     matrix<double> Shifts;
     QVector<QList<matrix<double> > > *ls_coeffs_list;
 
+    int TSLen;
+
 };
 
 #endif // LS_H

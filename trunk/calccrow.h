@@ -44,6 +44,7 @@ private:
     int N;
     matrix<double> *C;
 
+    int TSLen;
 };
 
 #endif // CALCCROW_H

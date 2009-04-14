@@ -42,18 +42,16 @@ double CalcRBlock::calcCov(const int & j,
     double eXji = 0;
     double x1 = 0, x2 = 0;
     for (int r = 0; r < TSLen; r++) {
-        if (((r-k-S) >= 0) && ((r-l-S) >= 0)) {
-//            x1 = cmtObj->getTSvalue(i, r-k-S/**Lags(i, j)-Shifts(i, j)*/);
-            x1 = cmtObj->getTSvalueNorm(i, r-k-S/**Lags(i, j)-Shifts(i, j)*/);
-            eXi += x1;
-//            x2 = cmtObj->getTSvalue(j, r-l-S/**Lags(i, j)-Shifts(i, j)*/);
-            x2 = cmtObj->getTSvalueNorm(j, r-l-S/**Lags(i, j)-Shifts(i, j)*/);
-            eXj += x2;
-            eXji += x1*x2;
-        }
+        //            x1 = cmtObj->getTSvalue(i, r-k-S/**Lags(i, j)-Shifts(i, j)*/);
+        x1 = cmtObj->getTSvalueNorm(i, r-k /*-S*/ /**Lags(i, j)-Shifts(i, j)*/);
+        eXi += x1;
+        //            x2 = cmtObj->getTSvalue(j, r-l-S/**Lags(i, j)-Shifts(i, j)*/);
+        x2 = cmtObj->getTSvalueNorm(j, r-l /*-S*/ /**Lags(i, j)-Shifts(i, j)*/);
+        eXj += x2;
+        eXji += x1*x2;
     }
-    eXi /= TSLen;//-((k>l) ? k : l);
-    eXj /= TSLen;//-((k>l) ? k : l);
-    eXji /= TSLen;//-((k>l) ? k : l);
+    eXi /= (double)TSLen;
+    eXj /= (double)TSLen;
+    eXji /= (double)TSLen;
     return (eXji - eXi*eXj);
 }

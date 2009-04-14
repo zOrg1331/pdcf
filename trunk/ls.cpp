@@ -47,29 +47,31 @@ double LS::calcPhi(const int & TSNum,
 
         double x1 = 0;
         if (index == -1) {
-            if ((num-S) >= 0) {
-//                x1 = cmtObj->getTSvalue(TSNum, num-S);
-                x1 = cmtObj->getTSvalueNorm(TSNum, num-S);
-                return x1;
-            } else {
-                return 0;
-            }
+            //                x1 = cmtObj->getTSvalue(TSNum, num-S);
+            x1 = cmtObj->getTSvalueNorm(TSNum, num/*-S*/);
+            return x1;
         }
+
         int ip = index/P;
-        if ((num-(index-ip*P+1)-S) >= 0) {
-//            x1 = cmtObj->getTSvalue(ip,
-//                                    num-
-//                                    //Lags(TSNum, ip)*
-//                                    (index-ip*P+1)/*-
-//                                    Shifts(TSNum, ip)*/-S);
+        //            x1 = cmtObj->getTSvalue(ip,
+        //                                    num-
+        //                                    //Lags(TSNum, ip)*
+        //                                    (index-ip*P+1)/*-
+        //                                    Shifts(TSNum, ip)*/-S);
+        if (ip == TSNum) {
             x1 = cmtObj->getTSvalueNorm(ip,
-                                    num-
-                                    //Lags(TSNum, ip)*
-                                    (index-ip*P+1)/*-
-                                    Shifts(TSNum, ip)*/-S);
+                                        num-
+                                        //Lags(TSNum, ip)*
+                                        (index-ip*P+1)/*-
+                                    Shifts(TSNum, ip)*/);
             return x1;
         } else {
-            return 0;
+            x1 = cmtObj->getTSvalueNorm(ip,
+                                        num-
+                                        //Lags(TSNum, ip)*
+                                        (index-ip*P+1)/*-
+                                    Shifts(TSNum, ip)*/-S);
+            return x1;
         }
     } else {
         return 0;
@@ -80,10 +82,11 @@ int LS::calcLS() {
 
     int Pi = 0;
     for (int P = P_from; P <= P_to; P += P_inc) {
-        for (int Sh = S_from; Sh <= S_to; Sh += S_inc) {
+        for (int Sh = S_from; Sh != (S_to+S_inc); Sh += S_inc) {
             int M = cmtObj->getTScount();
             //    qDebug() << "M: " << M;
             int N = cmtObj->getTSlen();
+            TSLen = N;
             //    qDebug() << "TSLen: " << N;
 
             int coeffsNum = P*M;
@@ -97,51 +100,56 @@ int LS::calcLS() {
                 }
                 Ar.append(Ari);
             }
-            matrix<double> C (coeffsNum, coeffsNum);
-            for (int j = 0; j < coeffsNum; j++) {
-                for (int k = 0; k < coeffsNum; k++) {
-                    C(j, k) = 0.0;
-                }
-            }
-            vector<double> B (coeffsNum);
-            for (int j = 0; j < coeffsNum; j++) {
-                B(j) = 0.0;
-            }
 
-            // генерируем матрицу C, она все равно одна и тажа все время
-            emit infoMsg(QString("LS: P=%1, Sh=%2 prepairing matrix").arg(P).arg(Sh));
-            //    for (int row = 0; row < coeffsNum; row++) {
-            //        for (int col = 0; col < coeffsNum; col++) {
-            //            double summC = 0;
-            //            double x1C, x2C;
-            //            for (int n = 0; n < N; n++) {
-            //                x1C = calcPhi(cmtObj, 0, 1, P, Lags, Shifts, row, n);
-            //                x2C = calcPhi(cmtObj, 0, 1, P, Lags, Shifts, col, n);
-            //                summC += x1C*x2C;
-            //            }
-            //
-            //            C(row, col) = summC;
-            //        }
-            //        printf("\testimated: %d of %d coeffs\n", row+1, coeffsNum);
-            //    }
-            for (int row = 0; row < coeffsNum; row += 2) {
-                CalcCRow thr1(cmtObj, 0, 1, P, Sh, M, Lags, Shifts, row, N, &C);
-                thr1.start();
-                if ((row+1) < coeffsNum) {
-                    CalcCRow thr2(cmtObj, 0, 1, P, Sh, M, Lags, Shifts, row+1, N, &C);
-                    thr2.start();
-                    thr2.wait();
-                }
-                thr1.wait();
-                QString str = QString("LS: P=%3, Sh=%4, prepearing matrix: estimated %1 of %2 coeffs")
-                              .arg(row+1)
-                              .arg(coeffsNum)
-                              .arg(P)
-                              .arg(Sh);
-                emit infoMsg(str);
-            }
 
             for (int TSNum = 0; TSNum < M; TSNum++) {
+
+                matrix<double> C (coeffsNum, coeffsNum);
+                for (int j = 0; j < coeffsNum; j++) {
+                    for (int k = 0; k < coeffsNum; k++) {
+                        C(j, k) = 0.0;
+                    }
+                }
+                vector<double> B (coeffsNum);
+                for (int j = 0; j < coeffsNum; j++) {
+                    B(j) = 0.0;
+                }
+
+                // генерируем матрицу C
+                emit infoMsg(QString("LS: P=%1, Sh=%2 prepairing matrix").arg(P).arg(Sh));
+                //    for (int row = 0; row < coeffsNum; row++) {
+                //        for (int col = 0; col < coeffsNum; col++) {
+                //            double summC = 0;
+                //            double x1C, x2C;
+                //            for (int n = 0; n < N; n++) {
+                //                x1C = calcPhi(cmtObj, 0, 1, P, Lags, Shifts, row, n);
+                //                x2C = calcPhi(cmtObj, 0, 1, P, Lags, Shifts, col, n);
+                //                summC += x1C*x2C;
+                //            }
+                //
+                //            C(row, col) = summC;
+                //        }
+                //        printf("\testimated: %d of %d coeffs\n", row+1, coeffsNum);
+                //    }
+                for (int row = 0; row < coeffsNum; row += 2) {
+                    CalcCRow thr1(cmtObj, TSNum, 1, P, Sh, M, Lags, Shifts, row, N, &C);
+                    thr1.start();
+                    if ((row+1) < coeffsNum) {
+                        CalcCRow thr2(cmtObj, TSNum, 1, P, Sh, M, Lags, Shifts, row+1, N, &C);
+                        thr2.start();
+                        thr2.wait();
+                    }
+                    thr1.wait();
+                    QString str = QString("LS: P=%3, Sh=%4, prepearing matrix for TS=%5: estimated %1 of %2 coeffs")
+                                  .arg(row+1)
+                                  .arg(coeffsNum)
+                                  .arg(P)
+                                  .arg(Sh)
+                                  .arg(TSNum);
+                    emit infoMsg(str);
+                }
+
+
                 QString str = QString("LS: P=%2, Sh=%3 working with TS: %1").arg(TSNum+1).arg(P).arg(Sh);
                 emit infoMsg(str);
 
@@ -187,6 +195,7 @@ int LS::calcLS() {
             QVector<QVector<double> > Residuals;
 
             cmtObj->calcResiduals(Ar, Ps, Ss, Sh, Residuals);
+
             for (int ts = 0; ts < M; ts++) {
                 QFile res_out(QString("./%1/residuals_p=%2_s=%3_ts=%4.txt")
                               .arg(baseDir)

@@ -19,6 +19,8 @@ public:
 
     int getTSlen();
 
+    int getTSlenAbs();
+
     double getTSvalue(const int & TSNum,
                       const int & num);
 
@@ -43,6 +45,8 @@ public:
 
     double calcStdDeviation(const QVector<double> & ts);
 
+    void setDataWindow(int dataFrom, int dataTo);
+
 private:
     void normalizeTS();
 
@@ -54,6 +58,9 @@ private:
     QVector<double> mean;
     QVector<int> tsLen;
     int timeseriesCount;
+
+    int currDataFrom;
+    int currDataTo;
 
 signals:
     void infoMsg(QString);

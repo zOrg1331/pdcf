@@ -7,7 +7,8 @@ using namespace boost::numeric::ublas;
 #define ZERO 0.0000001
 
 CommonMathTools::CommonMathTools() {
-
+    currDataFrom = 0;
+    currDataTo = 0;
 }
 
 int CommonMathTools::loadTS(const QStringList & fileNames) {
@@ -98,17 +99,34 @@ int CommonMathTools::getTScount() {
 }
 
 int CommonMathTools::getTSlen() {
+    if ((currDataFrom == 0) && (currDataTo == 0)) return tsLen.at(0);
+    else return (currDataTo-currDataFrom);
+}
+
+int CommonMathTools::getTSlenAbs() {
     return tsLen.at(0);
 }
 
 double CommonMathTools::getTSvalue(const int & TSNum,
                                    const int & num) {
-    return timeseriesValues.at(TSNum).at(num);
+    if ((currDataFrom == 0) && (currDataTo == 0)) {
+        if ((num >= 0) && (num < tsLen.at(0))) return timeseriesValues.at(TSNum).at(num);
+        else return 0;
+    } else {
+        if (((num+currDataFrom) >= 0) && (num < currDataTo)) return timeseriesValues.at(TSNum).at(num+currDataFrom);
+        else return 0;
+    }
 }
 
 double CommonMathTools::getTSvalueNorm(const int & TSNum,
                                        const int & num) {
-    return timeseriesValuesNorm.at(TSNum).at(num);
+    if ((currDataFrom == 0) && (currDataTo == 0)) {
+        if ((num >= 0) && (num < tsLen.at(0))) return timeseriesValuesNorm.at(TSNum).at(num);
+        else return 0;
+    } else {
+        if (((num+currDataFrom) >= 0) && (num < currDataTo)) return timeseriesValuesNorm.at(TSNum).at(num+currDataFrom);
+        else return 0;
+    }
 }
 
 int CommonMathTools::gaussSolve(const matrix<double>& A,
@@ -173,7 +191,7 @@ int CommonMathTools::calcResiduals(const QList<matrix<double> >& Ar,
                                    const QVector<int> & Ss,
                                    const int & Sh,
                                    QVector<QVector<double> > & Residuals) {
-    int N = tsLen.at(0);
+    int N = getTSlen();
 
     // сортируем входной вектор размерностей, чтобы найти потом максимальную
     QVector<int> P(Ps);
@@ -186,17 +204,18 @@ int CommonMathTools::calcResiduals(const QList<matrix<double> >& Ar,
         Res[i].resize(N-P.last()-Sh);
     }
 
-    for (int i = P.last()+Sh; i < N; i++) {
+    for (int i = P.last()+Sh; i < (N-abs(Sh)); i++) {
         for (int s = 0; s < Ss.count(); s++) {
             double x_mine = 0;
             for (int s1 = 0; s1 < Ss.count(); s1++) {
                 for (int p = 0; p < Ps.count(); p++) {
 //                    x_mine += getTSvalue(Ss.at(s1), i-Ps.at(p)-Sh) * Ar.at(p)(Ss.at(s), Ss.at(s1));
-                    x_mine += getTSvalueNorm(Ss.at(s1), i-Ps.at(p)-Sh) * Ar.at(p)(Ss.at(s), Ss.at(s1));
+                    if (s1 != s) x_mine += getTSvalueNorm(Ss.at(s1), i-Ps.at(p) -Sh) * Ar.at(p)(Ss.at(s), Ss.at(s1));
+                    else         x_mine += getTSvalueNorm(Ss.at(s1), i-Ps.at(p)    ) * Ar.at(p)(Ss.at(s), Ss.at(s1));
                 }
             }
 //            double x = getTSvalue(Ss.at(s), i-Sh);
-            double x = getTSvalueNorm(Ss.at(s), i-Sh);
+            double x = getTSvalueNorm(Ss.at(s), i);
             Res[s][i-P.last() -Sh] = x-x_mine;
         }
     }
@@ -218,4 +237,9 @@ double CommonMathTools::calcStdDeviation(const QVector<double> & ts) {
     summ1 /= N;
     summ2 /= N;
     return sqrt(summ2 - summ1*summ1);
+}
+
+void CommonMathTools::setDataWindow(int dataFrom, int dataTo) {
+    currDataFrom = dataFrom;
+    currDataTo = dataTo;
 }

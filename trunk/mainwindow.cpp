@@ -148,12 +148,20 @@ void MainWindow::on_estLSButton_clicked() {
     }
 
     int p_from = m_ui->dimensionFromEdit->text().toInt();
-    int p_to = m_ui->dimensionToEdit->text().toInt() <= p_from ? p_from : m_ui->dimensionToEdit->text().toInt();
-    int p_inc = m_ui->dimensionIncEdit->text().toInt() == 0 ? 1 : m_ui->dimensionIncEdit->text().toInt();
+    int p_to = m_ui->dimensionToEdit->text().toInt();
+    int p_inc = m_ui->dimensionIncEdit->text().toInt();
 
     int s_from = m_ui->shiftFromEdit->text().toInt();
-    int s_to = m_ui->shiftToEdit->text().toInt() <= s_from ? s_from : m_ui->shiftToEdit->text().toInt();
-    int s_inc = m_ui->shiftIncEdit->text().toInt() == 0 ? 1 : m_ui->shiftIncEdit->text().toInt();
+    int s_to = m_ui->shiftToEdit->text().toInt();
+    int s_inc = m_ui->shiftIncEdit->text().toInt();
+
+    if (p_to < p_from) p_to = p_from;
+    if (p_inc == 0) p_inc = 1;
+
+    if (s_inc == 0) {
+        s_inc = 1;
+        s_to = s_from;
+    }
 
     Ar.resize(0);
     Ar.resize(((p_to-p_from)/p_inc + 1)*((s_to-s_from)/s_inc + 1));
@@ -166,16 +174,24 @@ void MainWindow::on_estLSButton_clicked() {
 void MainWindow::estLSFinished() {
 
     int p_from = m_ui->dimensionFromEdit->text().toInt();
-    int p_to = m_ui->dimensionToEdit->text().toInt() <= p_from ? p_from : m_ui->dimensionToEdit->text().toInt();
-    int p_inc = m_ui->dimensionIncEdit->text().toInt() == 0 ? 1 : m_ui->dimensionIncEdit->text().toInt();
+    int p_to = m_ui->dimensionToEdit->text().toInt();
+    int p_inc = m_ui->dimensionIncEdit->text().toInt();
 
     int s_from = m_ui->shiftFromEdit->text().toInt();
-    int s_to = m_ui->shiftToEdit->text().toInt() <= s_from ? s_from : m_ui->shiftToEdit->text().toInt();
-    int s_inc = m_ui->shiftIncEdit->text().toInt() == 0 ? 1 : m_ui->shiftIncEdit->text().toInt();
+    int s_to = m_ui->shiftToEdit->text().toInt();
+    int s_inc = m_ui->shiftIncEdit->text().toInt();
+
+    if (p_to < p_from) p_to = p_from;
+    if (p_inc == 0) p_inc = 1;
+
+    if (s_inc == 0) {
+        s_inc = 1;
+        s_to = s_from;
+    }
 
     int pi = 0;
     for (int p = p_from; p <= p_to; p += p_inc) {
-        for (int s = s_from; s <= s_to; s += s_inc) {
+        for (int s = s_from; s != (s_to+s_inc); s += s_inc) {
             QTableWidget *arCoeffsTable = new QTableWidget;
             m_ui->arCoeffsTabs->addTab(arCoeffsTable, QString("p=%1, s=%2").arg(p).arg(s));
             arCoeffsTable->setColumnCount(Ar.at(pi).count()*Ar.at(pi).at(0).size1());
@@ -199,7 +215,7 @@ void MainWindow::estLSFinished() {
 
     pi = 0;
     for (int p = p_from; p <= p_to; p += p_inc) {
-        for (int s = s_from; s <= s_to; s += s_inc) {
+        for (int s = s_from; s != (s_to+s_inc); s += s_inc) {
             QFile file_out(QString("./%1/ar_p=%2_s=%3.txt").arg(dirName).arg(p).arg(s));
             if (!file_out.open(QIODevice::WriteOnly | QIODevice::Text))
                 return;
@@ -258,12 +274,20 @@ void MainWindow::on_estPDCButton_clicked() {
     pdcfResult.resize(Ar.count());
 
     int p_from = m_ui->dimensionFromEdit->text().toInt();
-    int p_to = m_ui->dimensionToEdit->text().toInt() <= p_from ? p_from : m_ui->dimensionToEdit->text().toInt();
-    int p_inc = m_ui->dimensionIncEdit->text().toInt() == 0 ? 1 : m_ui->dimensionIncEdit->text().toInt();
+    int p_to = m_ui->dimensionToEdit->text().toInt();
+    int p_inc = m_ui->dimensionIncEdit->text().toInt();
 
     int s_from = m_ui->shiftFromEdit->text().toInt();
-    int s_to = m_ui->shiftToEdit->text().toInt() <= s_from ? s_from : m_ui->shiftToEdit->text().toInt();
-    int s_inc = m_ui->shiftIncEdit->text().toInt() == 0 ? 1 : m_ui->shiftIncEdit->text().toInt();
+    int s_to = m_ui->shiftToEdit->text().toInt();
+    int s_inc = m_ui->shiftIncEdit->text().toInt();
+
+    if (p_to < p_from) p_to = p_from;
+    if (p_inc == 0) p_inc = 1;
+
+    if (s_inc == 0) {
+        s_inc = 1;
+        s_to = s_from;
+    }
 
     double freqFrom = m_ui->freqFromEdit->text().toInt()/(double)m_ui->vibEdit->text().toInt();
     double freqTo = m_ui->freqToEdit->text().toInt()/(double)m_ui->vibEdit->text().toInt();
@@ -302,16 +326,24 @@ void MainWindow::estPDCFinished() {
 void MainWindow::printResult() {
 
     int p_from = m_ui->dimensionFromEdit->text().toInt();
-    int p_to = m_ui->dimensionToEdit->text().toInt() <= p_from ? p_from : m_ui->dimensionToEdit->text().toInt();
-    int p_inc = m_ui->dimensionIncEdit->text().toInt() == 0 ? 1 : m_ui->dimensionIncEdit->text().toInt();
+    int p_to = m_ui->dimensionToEdit->text().toInt();
+    int p_inc = m_ui->dimensionIncEdit->text().toInt();
 
     int s_from = m_ui->shiftFromEdit->text().toInt();
-    int s_to = m_ui->shiftToEdit->text().toInt() <= s_from ? s_from : m_ui->shiftToEdit->text().toInt();
-    int s_inc = m_ui->shiftIncEdit->text().toInt() == 0 ? 1 : m_ui->shiftIncEdit->text().toInt();
+    int s_to = m_ui->shiftToEdit->text().toInt();
+    int s_inc = m_ui->shiftIncEdit->text().toInt();
+
+    if (p_to < p_from) p_to = p_from;
+    if (p_inc == 0) p_inc = 1;
+
+    if (s_inc == 0) {
+        s_inc = 1;
+        s_to = s_from;
+    }
 
     int pi = 0;
     for (int p = p_from; p <= p_to; p += p_inc) {
-        for (int s = s_from; s <= s_to; s += s_inc) {
+        for (int s = s_from; s != (s_to+s_inc); s += s_inc) {
 
             QFile file_out(QString("./%1/pdc_p=%2_s=%3.txt").arg(dirName).arg(p).arg(s));
             if (!file_out.open(QIODevice::WriteOnly | QIODevice::Text))
@@ -384,17 +416,17 @@ void MainWindow::printResult() {
                     out_plot << "set ylabel \"" << i+1 << "->" << j+1 << "\" offset 0.5,0\n";
                     out_plot << "set format x \"%g\"\n";
                     out_plot << "set format y \"%g\"\n";
-                    out_plot << "unset xtics\n";
-                    out_plot << "unset ytics\n";
+                    out_plot << "#unset xtics\n";
+                    out_plot << "#unset ytics\n";
                     if (i != 0) {
-                        out_plot << "set format y \"\"\n";
+                        out_plot << "#set format y \"\"\n";
                     } else {
-                        out_plot << "set ytics (\"0\" 0, \"1\" 1.0)\n";
+                        out_plot << "#set ytics (\"0\" 0, \"1\" 1.0)\n";
                     }
                     if (j != TSCount-1) {
-                        out_plot << "set format x \"\"\n";
+                        out_plot << "#set format x \"\"\n";
                     } else {
-                        QString str = "set xtics (";
+                        QString str = "#set xtics (";
                         for (int tics = 0; tics < 5; tics++) {
                             str += QString("\"%1\" %2").arg(freqFrom+tics*(freqTo-freqFrom)/5.0).arg(freqFrom+tics*(freqTo-freqFrom)/5.0);
                             str += ", ";
