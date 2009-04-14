@@ -12,11 +12,13 @@ SOURCES += main.cpp \
     common_math_tools.cpp \
     calccrow.cpp \
     calcrblock.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    pdcf_shell.cpp
 HEADERS += pdcf.h \
     ls.h \
     common_math_tools.h \
     calccrow.h \
     calcrblock.h \
-    mainwindow.h
+    mainwindow.h \
+    pdcf_shell.h
 FORMS += mainwindow.ui

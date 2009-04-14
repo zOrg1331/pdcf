@@ -22,6 +22,8 @@ CalcCRow::CalcCRow(CommonMathTools *cmtObj_,
     row = row_;
     N = N_;
     C = C_;
+
+    TSLen = cmtObj->getTSlen();
 }
 
 double CalcCRow::calcPhi(const int & index,
@@ -31,32 +33,34 @@ double CalcCRow::calcPhi(const int & index,
 
         double x1 = 0;
         if (index == -1) {
-            if ((num-S) >= 0) {
-//                x1 = cmtObj->getTSvalue(TSNum, num-S);
-                x1 = cmtObj->getTSvalueNorm(TSNum, num-S);
-                return x1;
-            } else {
-                return 0;
-            }
+            //                x1 = cmtObj->getTSvalue(TSNum, num-S);
+            x1 = cmtObj->getTSvalueNorm(TSNum, num/*-S*/);
+            return x1;
         }
+
         int ip = index/P;
-        if ((num-(index-ip*P+1)-S) >= 0) {
-//            x1 = cmtObj->getTSvalue(ip,
-//                                    num-
-//                                    //Lags(TSNum, ip)*
-//                                    (index-ip*P+1)/*-
-//                                    Shifts(TSNum, ip)*/-
-//                                                       S);
+        //            x1 = cmtObj->getTSvalue(ip,
+        //                                    num-
+        //                                    //Lags(TSNum, ip)*
+        //                                    (index-ip*P+1)/*-
+        //                                    Shifts(TSNum, ip)*/-
+        //                                                       S);
+        if (ip == TSNum) {
             x1 = cmtObj->getTSvalueNorm(ip,
-                                    num-
-                                    //Lags(TSNum, ip)*
-                                    (index-ip*P+1)/*-
-                                    Shifts(TSNum, ip)*/-
-                                                       S);
+                                        num-
+                                        //Lags(TSNum, ip)*
+                                        (index-ip*P+1)/*-
+                                    Shifts(TSNum, ip)*/);
 
             return x1;
         } else {
-            return 0;
+            x1 = cmtObj->getTSvalueNorm(ip,
+                                        num-
+                                        //Lags(TSNum, ip)*
+                                        (index-ip*P+1)/*-
+                                    Shifts(TSNum, ip)*/-S);
+
+            return x1;
         }
     } else {
         return 0;

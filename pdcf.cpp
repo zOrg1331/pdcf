@@ -52,7 +52,7 @@ void PDCF::calcPDCF() {
 
     int Ari = 0;
     for (int P = P_from; P <= P_to; P += P_inc) {
-        for (int Sh = S_from; Sh <= S_to; Sh += S_inc) {
+        for (int Sh = S_from; Sh != (S_to+S_inc); Sh += S_inc) {
 
             // количество систем
             int N = Ar.at(Ari).at(0).size1();
@@ -69,6 +69,7 @@ void PDCF::calcPDCF() {
                 for (int j = 0; j < N*N; j++) {
                     tmp2 << tmp1;
                 }
+
                 for (int i = 0; i < FREQ_RES; i++) {
                     result << tmp2;
                 }
@@ -107,6 +108,7 @@ void PDCF::calcPDCF() {
                 //  }
                 //}
             }
+
             // считаем обратную матрицу
             emit infoMsg(QString("PDC: inverting covariance matrix of %1 system").arg(Ari));
             cmtObj->calcInverseMatrix(R, H);
@@ -129,7 +131,7 @@ void PDCF::calcPDCF() {
                     for (int i = 0; i < Res.at(ts).count(); i++) {
                         eXX += Res.at(ts).at(i)*Res.at(ts).at(i);
                     }
-                    eXX /= TSLen;
+                    eXX /= (double)Res.at(ts).count();
                     Z(ts, ts) = eXX;
                     //                qDebug() << "Z" << ts << Z(ts, ts);
                 }
@@ -179,6 +181,7 @@ void PDCF::calcPDCF() {
                 QString str = QString("PDC: estimating PDC: estimated %1 of %2 freqs of %3 system").arg(freqI).arg(FREQ_RES).arg(Ari);
                 emit infoMsg(str);
             }
+
             (*PDCFRes)[Ari] = result;
             Ari++;
         }
