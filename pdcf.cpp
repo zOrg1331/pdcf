@@ -83,18 +83,38 @@ void PDCF::calcPDCF() {
             emit infoMsg(QString("PDC: starting estimating covariance matrix of %1 system").arg(Ari));
             matrix<double> H(N*P, N*P);
             matrix<double> R(N*P, N*P);
-            for (int i = 0; i < N; i += 2) {
-                CalcRBlock thr1(P, N, Sh, cmtObj, Lags, Shifts, i, &R, &H);
-                thr1.start();
-                if ((i+1) < N) {
-                    CalcRBlock thr2(P, N, Sh, cmtObj, Lags, Shifts, i+1, &R, &H);
-                    thr2.start();
-                    thr1.wait();
-                    thr2.wait();
-                } else {
-                    thr1.wait();
+            int threadCount = QThread::idealThreadCount();
+            if (threadCount < 1) threadCount = 1;
+            for (int i = 0; i < N; i += threadCount) {
+                QVector<CalcRBlock *> threads;
+                for (int thr_i = 0; thr_i < threadCount; thr_i++) {
+                    if ((i+thr_i) < N) {
+                        CalcRBlock *thr = new CalcRBlock(P, N, Sh, cmtObj, Lags, Shifts,
+                                                       i+thr_i,
+                                                       &R, &H);
+                        threads.append(thr);
+                        thr->start();
+                    }
                 }
-                QString str = QString("PDC: estimating R: estimated %1 of %2 blocks of %3 system").arg(i+1).arg(N).arg(Ari);
+                for (int thr_i = 0; thr_i < threads.count(); thr_i++) {
+                    threads.at(thr_i)->wait();
+                }
+
+//                CalcRBlock thr1(P, N, Sh, cmtObj, Lags, Shifts, i, &R, &H);
+//                thr1.start();
+//                if ((i+1) < N) {
+//                    CalcRBlock thr2(P, N, Sh, cmtObj, Lags, Shifts, i+1, &R, &H);
+//                    thr2.start();
+//                    thr1.wait();
+//                    thr2.wait();
+//                } else {
+//                    thr1.wait();
+//                }
+                QString str = QString("PDC: estimating R: estimated %1 of %2 blocks of %3 system")
+//                              .arg(i+1)
+                              .arg(i+threadCount)
+                              .arg(N)
+                              .arg(Ari);
                 emit infoMsg(str);
                 //for (int j = 0; j < N; j += 2) {
                 //                for (int k = 0; k < P; k++) {
