@@ -131,17 +131,33 @@ int LS::calcLS() {
                 //        }
                 //        printf("\testimated: %d of %d coeffs\n", row+1, coeffsNum);
                 //    }
-                for (int row = 0; row < coeffsNum; row += 2) {
-                    CalcCRow thr1(cmtObj, TSNum, 1, P, Sh, M, Lags, Shifts, row, N, &C);
-                    thr1.start();
-                    if ((row+1) < coeffsNum) {
-                        CalcCRow thr2(cmtObj, TSNum, 1, P, Sh, M, Lags, Shifts, row+1, N, &C);
-                        thr2.start();
-                        thr2.wait();
+                int threadCount = QThread::idealThreadCount();
+                if (threadCount < 1) threadCount = 1;
+                for (int row = 0; row < coeffsNum; row += threadCount) {
+                    QVector<CalcCRow *> threads;
+                    for (int thr_i = 0; thr_i < threadCount; thr_i++) {
+                        if ((row+thr_i) < coeffsNum) {
+                            CalcCRow *thr = new CalcCRow(cmtObj, TSNum, 1, P, Sh, M, Lags, Shifts,
+                                                         row+thr_i,
+                                                         N, &C);
+                            threads.append(thr);
+                            thr->start();
+                        }
                     }
-                    thr1.wait();
+                    for (int thr_i = 0; thr_i < threads.count(); thr_i++) {
+                        threads.at(thr_i)->wait();
+                    }
+//                    CalcCRow thr1(cmtObj, TSNum, 1, P, Sh, M, Lags, Shifts, row, N, &C);
+//                    thr1.start();
+//                    if ((row+1) < coeffsNum) {
+//                        CalcCRow thr2(cmtObj, TSNum, 1, P, Sh, M, Lags, Shifts, row+1, N, &C);
+//                        thr2.start();
+//                        thr2.wait();
+//                    }
+//                    thr1.wait();
                     QString str = QString("LS: P=%3, Sh=%4, prepearing matrix for TS=%5: estimated %1 of %2 coeffs")
-                                  .arg(row+1)
+//                                  .arg(row+1)
+                                  .arg(row+threadCount)
                                   .arg(coeffsNum)
                                   .arg(P)
                                   .arg(Sh)
