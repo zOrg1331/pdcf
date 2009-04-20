@@ -1,7 +1,11 @@
-# -------------------------------------------------
-# Project created by QtCreator 2009-02-03T16:35:17
-# -------------------------------------------------
+
 QT += gui
+CONFIG += gui
+
+# to disable graphical user interface uncomment here
+QT -= gui
+CONFIG -= gui
+
 TARGET = pdcf
 CONFIG -= app_bundle
 TEMPLATE = app
@@ -12,13 +16,23 @@ SOURCES += main.cpp \
     common_math_tools.cpp \
     calccrow.cpp \
     calcrblock.cpp \
-    mainwindow.cpp \
     pdcf_shell.cpp
+
+gui {
+    SOURCES += mainwindow.cpp
+}
+
 HEADERS += pdcf.h \
     ls.h \
     common_math_tools.h \
     calccrow.h \
     calcrblock.h \
-    mainwindow.h \
     pdcf_shell.h
-FORMS += mainwindow.ui
+
+gui {
+    HEADERS += mainwindow.h
+}
+
+gui {
+    FORMS += mainwindow.ui
+}

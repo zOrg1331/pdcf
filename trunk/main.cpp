@@ -1,6 +1,14 @@
-#include <QtGui>
+#include <QtCore>
+
+#ifndef QT_GUI_LIB
+#include <QCoreApplication>
+#endif
+
+#ifdef QT_GUI_LIB
+#include <QApplication>
 
 #include "mainwindow.h"
+#endif
 #include "pdcf_shell.h"
 
 #include <boost/random.hpp>
@@ -169,7 +177,11 @@ void generateData() {
 
 int main(int argc, char *argv[]) {
 
+#ifdef QT_GUI_LIB
     QApplication a(argc, argv);
+#else
+    QCoreApplication a(argc, argv);
+#endif
 
 //    generateData();
 
@@ -192,9 +204,11 @@ int main(int argc, char *argv[]) {
     qDebug() << "--window=0 --data-from=0 --data-to=0 --data-step=0";
 
     if (a.arguments().count() == 1) {
+#ifdef QT_GUI_LIB
         MainWindow mw;
         mw.show();
         return a.exec();
+#endif
     } else {
         for (int i = 0; i < a.arguments().count(); i++) {
             if (a.arguments().at(i).contains("--files=")) {
