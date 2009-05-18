@@ -24,6 +24,10 @@ boost::variate_generator<boost::rand48&, boost::normal_distribution<> > norm_ran
 boost::variate_generator<boost::rand48&, boost::normal_distribution<> > norm_rand3(rng3, one_norm);
 boost::variate_generator<boost::rand48&, boost::normal_distribution<> > norm_rand4(rng4, one_norm);
 
+// for daemon mode
+#include <sys/time.h>
+#include <sys/resource.h>
+
 //int loadCoeffs(QString fileName) {
 //    // на входе ожидается текстовый файл с набором матриц из
 //    // p коэффициентов моделей, полученных при анализе связей
@@ -250,6 +254,25 @@ int main(int argc, char *argv[]) {
                 dataStep = a.arguments().at(i).split('=').at(1).toInt();
             }
         }
+
+	// go into daemon mode
+	pid_t pid, sid;
+	unsigned int fd;
+	struct rlimit flim;
+	pid = fork();
+     	if (pid < 0) {
+          exit(-1);
+	}
+	if (pid > 0) {
+          exit(0);
+	}
+	sid = setsid();
+	if (sid < 0) {
+          exit(-1);
+	}
+	getrlimit( RLIMIT_NOFILE, &flim );
+     	for ( fd = 0; fd < flim.rlim_max; fd++ )
+          close( fd );	
 
         PdcfShell pdcfShell(filesWithData,
                             calcOnlyAr,
