@@ -11,79 +11,32 @@
 #endif
 #include "pdcf_shell.h"
 
-#include <boost/random.hpp>
-boost::rand48 rng(0);
-boost::rand48 rng1(1);
-boost::rand48 rng2(2);
-boost::rand48 rng3(3);
-boost::rand48 rng4(4);
-boost::normal_distribution<> one_norm(0.0, 1.0);
-boost::variate_generator<boost::rand48&, boost::normal_distribution<> > norm_rand(rng, one_norm);
-boost::variate_generator<boost::rand48&, boost::normal_distribution<> > norm_rand1(rng1, one_norm);
-boost::variate_generator<boost::rand48&, boost::normal_distribution<> > norm_rand2(rng2, one_norm);
-boost::variate_generator<boost::rand48&, boost::normal_distribution<> > norm_rand3(rng3, one_norm);
-boost::variate_generator<boost::rand48&, boost::normal_distribution<> > norm_rand4(rng4, one_norm);
+#include <boost/program_options.hpp>
+using namespace boost;
+namespace po = boost::program_options;
+
+#include <iostream>
+using namespace std;
 
 // for daemon mode
 #include <sys/time.h>
 #include <sys/resource.h>
 
-//int loadCoeffs(QString fileName) {
-//    // на входе ожидается текстовый файл с набором матриц из
-//    // p коэффициентов моделей, полученных при анализе связей
-//    // между N компонентами.
-//
-//    QFile coeffsFile(fileName);
-//    if (!coeffsFile.exists()) {
-//        qDebug() << "unable to load coeffs file";
-//        return -1;
-//    }
-//
-//    // по первой строке файла определяем число компонент
-//    coeffsFile.open(QIODevice::ReadOnly);
-//    QString str = coeffsFile.readLine();
-//    QStringList coeffs = str.split(" ", QString::SkipEmptyParts);
-//    N = coeffs.count();
-//
-//    // заполняем строчку первой матрицы уже считанными коэффициентами
-//    matrix<double> Ar_tmp(N, N);
-//    for (int i = 0; i < coeffs.size(); i++) {
-//        bool ok;
-//        Ar_tmp(0, i) = coeffs.at(i).toDouble(&ok);
-//        if (!ok) {
-//            qDebug() << "an ugly symbol " << coeffs.at(i) << " at line " << 0 << " at " << i << " column";
-//            return -1;
-//        }
-//    }
-//
-//    // продолжаем считывать файл, заполняя матрицы и список матриц
-//    int currentRow = 1;
-//    while (!coeffsFile.atEnd()) {
-//        str = coeffsFile.readLine();
-//        coeffs = str.split(" ", QString::SkipEmptyParts);
-//        if (coeffs.count() < N) {
-//            // дошли до пустой строки, матрица кончилась, увеличиваем счетчик
-//            p++;
-//            // и добавляем уже полную матрицу в конец списка
-//            Ar.append(Ar_tmp);
-//            currentRow = 0;
-//            continue;
-//        }
-//        // заполняем в текущей матрице новую строку с коэффициентами
-//        for (int i = 0; i < N; i++) {
-//            bool ok;
-//            Ar_tmp(currentRow, i) = coeffs.at(i).toDouble(&ok);
-//            if (!ok) {
-//                qDebug() << "an ugly symbol " << coeffs.at(i) << " at line " << (currentRow*(1+p)+p) << " at " << i << " column";
-//                return -1;
-//            }
-//        }
-//        currentRow++;
-//    }
-//    return 0;
-//}
 
+#include <boost/random.hpp>
 void generateData() {
+    boost::rand48 rng(0);
+    boost::rand48 rng1(1);
+    boost::rand48 rng2(2);
+    boost::rand48 rng3(3);
+    boost::rand48 rng4(4);
+    boost::normal_distribution<> one_norm(0.0, 1.0);
+    boost::variate_generator<boost::rand48&, boost::normal_distribution<> > norm_rand(rng, one_norm);
+    boost::variate_generator<boost::rand48&, boost::normal_distribution<> > norm_rand1(rng1, one_norm);
+    boost::variate_generator<boost::rand48&, boost::normal_distribution<> > norm_rand2(rng2, one_norm);
+    boost::variate_generator<boost::rand48&, boost::normal_distribution<> > norm_rand3(rng3, one_norm);
+    boost::variate_generator<boost::rand48&, boost::normal_distribution<> > norm_rand4(rng4, one_norm);
+
     QStringList tst;
     tst << "./ts_test1.txt";
     tst << "./ts_test2.txt";
@@ -189,92 +142,94 @@ int main(int argc, char *argv[]) {
 
 //    generateData();
 
-    QStringList filesWithData;
-    bool calcOnlyAr = false;
-    int dimFrom = 1;
-    int dimTo = 0;
-    int dimStep = 0;
-    int shiftFrom = 0;
-    int shiftTo = 0;
-    int shiftStep = 0;
-    int window = 0;
-    int dataFrom = 0;
-    int dataTo = 0;
-    int dataStep = 0;
-
-    qDebug() << "./pdcf --files=\"<files with data>\" --only-ar \\";
-    qDebug() << "--d-from=1 --d-to=0 --d-step=0 \\";
-    qDebug() << "--shift-from=0 --shift-to=0 --shift-step=0 \\";
-    qDebug() << "--window=0 --data-from=0 --data-to=0 --data-step=0";
-
     if (a.arguments().count() == 1) {
 #ifdef QT_GUI_LIB
         MainWindow mw;
         mw.show();
         return a.exec();
 #endif
-    } else {
-        for (int i = 0; i < a.arguments().count(); i++) {
-            if (a.arguments().at(i).contains("--files=")) {
-                QString tmp = a.arguments().at(i).split('=').at(1);
+    }
+    try {
+        std::vector<string> filesWithData;
+        bool calcOnlyAr = false;
+        int dimFrom = 1;
+        int dimTo = 0;
+        int dimStep = 0;
+        int shiftFrom = 0;
+        int shiftTo = 0;
+        int shiftStep = 0;
+        int window = 0;
+        int dataFrom = 0;
+        int dataTo = 0;
+        int dataStep = 0;
 
-                filesWithData = tmp.split(" ", QString::SkipEmptyParts);
-            }
-            if (a.arguments().at(i).contains("--only-ar")) {
-                calcOnlyAr = true;
-            }
-            if (a.arguments().at(i).contains("--d-from=")) {
-                dimFrom = a.arguments().at(i).split('=').at(1).toInt();
-            }
-            if (a.arguments().at(i).contains("--d-to=")) {
-                dimTo = a.arguments().at(i).split('=').at(1).toInt();
-            }
-            if (a.arguments().at(i).contains("--d-step=")) {
-                dimStep = a.arguments().at(i).split('=').at(1).toInt();
-            }
-            if (a.arguments().at(i).contains("--shift-from=")) {
-                shiftFrom = a.arguments().at(i).split('=').at(1).toInt();
-            }
-            if (a.arguments().at(i).contains("--shift-to=")) {
-                shiftTo = a.arguments().at(i).split('=').at(1).toInt();
-            }
-            if (a.arguments().at(i).contains("--shift-step=")) {
-                shiftStep = a.arguments().at(i).split('=').at(1).toInt();
-            }
-            if (a.arguments().at(i).contains("--window=")) {
-                window = a.arguments().at(i).split('=').at(1).toInt();
-            }
-            if (a.arguments().at(i).contains("--data-from=")) {
-                dataFrom = a.arguments().at(i).split('=').at(1).toInt();
-            }
-            if (a.arguments().at(i).contains("--data-to=")) {
-                dataTo = a.arguments().at(i).split('=').at(1).toInt();
-            }
-            if (a.arguments().at(i).contains("--data-step=")) {
-                dataStep = a.arguments().at(i).split('=').at(1).toInt();
-            }
+        po::options_description desc("Allowed options");
+        desc.add_options()
+                ("help", "produce help message")
+                ("input-files,I", po::value< std::vector<string> >(&filesWithData),
+                 "files with data to analyse")
+                ("ar-only", po::value<bool>(&calcOnlyAr)->default_value(0),
+                 "calculate only AR models")
+                ("d-from", po::value<int>(&dimFrom)->default_value(1),
+                 "dimension of the AR models (start value)")
+                ("d-to", po::value<int>(&dimTo)->default_value(0),
+                 "dimension of the AR models (end value)")
+                ("d-step", po::value<int>(&dimStep)->default_value(0),
+                 "dimension of the AR models (step value)")
+                ("shift-from", po::value<int>(&shiftFrom)->default_value(0),
+                 "time shift of the timeseries (start value)")
+                ("shift-to", po::value<int>(&shiftTo)->default_value(0),
+                 "time shift of the timeseries (end value)")
+                ("shift-step", po::value<int>(&shiftStep)->default_value(0),
+                 "time shift of the timeseries (step value)")
+                ("window", po::value<int>(&window)->default_value(0),
+                 "window in witch analyse input data files")
+                ("data-from", po::value<int>(&dataFrom)->default_value(0),
+                 "data point in timeseries (start value)")
+                ("data-to", po::value<int>(&dataTo)->default_value(0),
+                 "data point in timeseries (end value)")
+                ("data-step", po::value<int>(&dataStep)->default_value(0),
+                 "data point in timeseries (step value)")
+                ("daemon-mode", "go into daemon mode")
+                ;
+
+        po::positional_options_description p;
+        po::variables_map vm;
+        po::store(po::command_line_parser(argc, argv).
+                  options(desc).positional(p).run(), vm);
+        po::notify(vm);
+
+        if (vm.count("help")) {
+            cout << "Usage: pdcf [options]\n";
+            cout << desc;
+            return 0;
         }
 
-	// go into daemon mode
-	pid_t pid, sid;
-	unsigned int fd;
-	struct rlimit flim;
-	pid = fork();
-     	if (pid < 0) {
-          exit(-1);
-	}
-	if (pid > 0) {
-          exit(0);
-	}
-	sid = setsid();
-	if (sid < 0) {
-          exit(-1);
-	}
-	getrlimit( RLIMIT_NOFILE, &flim );
-     	for ( fd = 0; fd < flim.rlim_max; fd++ )
-          close( fd );	
+        if (vm.count("daemon-mode")) {
+            pid_t pid, sid;
+            unsigned int fd;
+            struct rlimit flim;
+            pid = fork();
+            if (pid < 0) {
+                exit(-1);
+            }
+            if (pid > 0) {
+                exit(0);
+            }
+            sid = setsid();
+            if (sid < 0) {
+                exit(-1);
+            }
+            getrlimit( RLIMIT_NOFILE, &flim );
+            for ( fd = 0; fd < flim.rlim_max; fd++ )
+                close( fd );
+        }
 
-        PdcfShell pdcfShell(filesWithData,
+        QStringList filesWithDataSL;
+        for (int i = 0; i < filesWithData.size(); i++) {
+            filesWithDataSL << QString::fromStdString(filesWithData[i]);
+        }
+        PdcfShell pdcfShell(filesWithDataSL,
                             calcOnlyAr,
                             dimFrom,
                             dimTo,
@@ -286,7 +241,13 @@ int main(int argc, char *argv[]) {
                             dataFrom,
                             dataTo,
                             dataStep);
+
         pdcfShell.startCalc();
         return a.exec();
+    }
+    catch(std::exception& e)
+    {
+        cout << e.what() << "\n";
+        return 1;
     }
 }

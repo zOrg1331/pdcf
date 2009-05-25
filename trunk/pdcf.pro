@@ -36,3 +36,8 @@ gui {
 gui {
     FORMS += mainwindow.ui
 }
+
+LIBS += -L./ -lboost_program_options
+gui {
+    LIBS -= -L./ -lboost_program_options
+}
