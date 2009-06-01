@@ -127,6 +127,10 @@ void PDCF::calcPDCF() {
                 //                }
                 //  }
                 //}
+                for (int thr_i = 0; thr_i < threads.count(); thr_i++) {
+                    delete threads[thr_i];
+                }
+
             }
 
             // считаем обратную матрицу
@@ -204,6 +208,14 @@ void PDCF::calcPDCF() {
 
             (*PDCFRes)[Ari] = result;
             Ari++;
+
+            for (int i = 0; i < result.size(); i++) {
+                for (int j = 0; j < result.at(i).size(); j++) {
+                    result[i][j].resize(0);
+                }
+                result[i].resize(0);
+            }
+            result.resize(0);
         }
     }
 }
