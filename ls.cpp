@@ -163,6 +163,10 @@ int LS::calcLS() {
                                   .arg(Sh)
                                   .arg(TSNum);
                     emit infoMsg(str);
+                    for (int thr_i = 0; thr_i < threads.count(); thr_i++) {
+                        delete threads[thr_i];
+                    }
+
                 }
 
 

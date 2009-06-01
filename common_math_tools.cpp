@@ -77,6 +77,11 @@ int CommonMathTools::loadTS(const QStringList & fileNames) {
         files[i]->close();
     }
 
+    for (int i = 0; i < timeseriesCount; i++) {
+        delete files[i];
+    }
+
+
     return 0;
 }
 
