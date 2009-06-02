@@ -47,8 +47,8 @@ cpuCount(cpuCount)
     currDataTo = dataTo;
 }
 
-PdcfShell::~PdcfShell()
-{
+PdcfShell::~PdcfShell() {
+    log_out.close();
 }
 
 void PdcfShell::startCalc() {
@@ -100,6 +100,9 @@ void PdcfShell::estLS() {
         shiftTo = shiftFrom;
     }
 
+    for (int i = 0; i < Ar.size(); i++) {
+        Ar[i].clear();
+    }
     Ar.resize(0);
     Ar.resize(((dimTo-dimFrom)/dimStep + 1)*((shiftTo-shiftFrom)/shiftStep + 1));
 
@@ -168,6 +171,15 @@ void PdcfShell::estPDCF() {
         }
     }
 
+    for (int i = 0; i < pdcfResult.size(); i++) {
+        for (int i1 = 0; i1 < pdcfResult.at(i).size(); i1++) {
+            for (int i2 = 0; i2 < pdcfResult.at(i).at(i1).size(); i2++) {
+                pdcfResult[i][i1][i2].resize(0);
+            }
+            pdcfResult[i][i1].resize(0);
+        }
+        pdcfResult[i].resize(0);
+    }
     pdcfResult.resize(0);
     pdcfResult.resize(Ar.count());
 
@@ -388,7 +400,6 @@ void PdcfShell::printReport() {
 
     rep_out.close();
 
-    log_out.close();
 }
 
 void PdcfShell::incDataInterval() {
