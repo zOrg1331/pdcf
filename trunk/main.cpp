@@ -162,6 +162,7 @@ int main(int argc, char *argv[]) {
         int dataFrom = 0;
         int dataTo = 0;
         int dataStep = 0;
+        int cpuCount = 1;
 
         po::options_description desc("Allowed options");
         desc.add_options()
@@ -191,6 +192,8 @@ int main(int argc, char *argv[]) {
                 ("data-step", po::value<int>(&dataStep)->default_value(0),
                  "data point in timeseries (step value)")
                 ("daemon-mode", "go into daemon mode")
+                ("cpu-count", po::value<int>(&cpuCount)->default_value(1),
+                 "CPU cores to use")
                 ;
 
         po::positional_options_description p;
@@ -240,7 +243,8 @@ int main(int argc, char *argv[]) {
                             window,
                             dataFrom,
                             dataTo,
-                            dataStep);
+                            dataStep,
+                            cpuCount);
 
         pdcfShell.startCalc();
         return a.exec();

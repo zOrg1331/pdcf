@@ -29,7 +29,8 @@ public:
                    const double & freqFrom,
                    const double & freqTo,
                    const QVector<QList<matrix<double> > >& Ar,
-                   QVector<QVector<QVector<QVector<double> > > > *PDCFRes);
+                   QVector<QVector<QVector<QVector<double> > > > *PDCFRes,
+                   const int & cpuCount);
 
 protected:
     void run();
@@ -75,6 +76,7 @@ private:
     double freqTo;
     QVector<QList<matrix<double> > > Ar;
     QVector<QVector<QVector<QVector<double> > > > *PDCFRes;
+    int cpuCount;
 
 };
 
