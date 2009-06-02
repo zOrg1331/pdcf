@@ -25,7 +25,8 @@ public:
                    const int & S_inc,
                    const matrix<double> & Lags,
                    const matrix<double> & Shifts,
-                   QVector<QList<matrix<double> > > *ls_coeffs_list);
+                   QVector<QList<matrix<double> > > *ls_coeffs_list,
+                   const int & cpuCount);
 
 protected:
     void run();
@@ -54,6 +55,7 @@ private:
     matrix<double> Lags;
     matrix<double> Shifts;
     QVector<QList<matrix<double> > > *ls_coeffs_list;
+    int cpuCount;
 
     int TSLen;
 

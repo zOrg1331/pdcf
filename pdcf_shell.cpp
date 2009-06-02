@@ -14,11 +14,13 @@ PdcfShell::PdcfShell(QStringList filesWithData,
                      int window,
                      int dataFrom,
                      int dataTo,
-                     int dataStep) :
+                     int dataStep,
+                     int cpuCount) :
 filesWithData(filesWithData), calcOnlyAr(calcOnlyAr),
 dimFrom(dimFrom), dimTo(dimTo), dimStep(dimStep),
 shiftFrom(shiftFrom), shiftTo(shiftTo), shiftStep(shiftStep),
-window(window), dataFrom(dataFrom), dataTo(dataTo), dataStep(dataStep)
+window(window), dataFrom(dataFrom), dataTo(dataTo), dataStep(dataStep),
+cpuCount(cpuCount)
 
 {
     cmtObj = new CommonMathTools;
@@ -106,7 +108,7 @@ void PdcfShell::estLS() {
                      cmtObj,
                      dimFrom, dimTo, dimStep,
                      shiftFrom, shiftTo, shiftStep,
-                     Lags, Shifts, &Ar);
+                     Lags, Shifts, &Ar, cpuCount);
 
     lsObj->start();
 }
@@ -176,7 +178,7 @@ void PdcfShell::estPDCF() {
     pdcfObj->setParams(cmtObj, Lags, Shifts,
                        dimFrom, dimTo, dimStep,
                        shiftFrom, shiftTo, shiftStep,
-                       freqFrom, freqTo, Ar, &pdcfResult);
+                       freqFrom, freqTo, Ar, &pdcfResult, cpuCount);
     pdcfObj->start();
 }
 

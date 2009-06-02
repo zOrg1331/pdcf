@@ -18,7 +18,8 @@ void LS::setParams(const QString & baseDir_,
                    const int & S_inc_,
                    const matrix<double> & Lags_,
                    const matrix<double> & Shifts_,
-                   QVector<QList<matrix<double> > > *ls_coeffs_list_) {
+                   QVector<QList<matrix<double> > > *ls_coeffs_list_,
+                   const int & cpuCount_) {
     baseDir = baseDir_;
     cmtObj = cmtObj_;
     P_from = P_from_;
@@ -30,6 +31,7 @@ void LS::setParams(const QString & baseDir_,
     Lags = Lags_;
     Shifts = Shifts_;
     ls_coeffs_list = ls_coeffs_list_;
+    cpuCount = cpuCount_;
 }
 
 void LS::run() {
@@ -131,7 +133,7 @@ int LS::calcLS() {
                 //        }
                 //        printf("\testimated: %d of %d coeffs\n", row+1, coeffsNum);
                 //    }
-                int threadCount = QThread::idealThreadCount();
+                int threadCount = cpuCount;
                 if (threadCount < 1) threadCount = 1;
                 for (int row = 0; row < coeffsNum; row += threadCount) {
                     QVector<CalcCRow *> threads;

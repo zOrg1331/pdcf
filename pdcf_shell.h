@@ -23,7 +23,8 @@ public:
               int window = 0,
               int dataFrom = 0,
               int dataTo = 0,
-              int dataStep = 0);
+              int dataStep = 0,
+              int cpuCount = 1);
     ~PdcfShell();
 
     void startCalc();
@@ -57,6 +58,7 @@ private:
     int dataFrom;
     int dataTo;
     int dataStep;
+    int cpuCount;
 
     int currDataFrom;
     int currDataTo;

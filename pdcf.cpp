@@ -27,7 +27,8 @@ void PDCF::setParams(CommonMathTools *cmtObj_,
                      const double & freqFrom_,
                      const double & freqTo_,
                      const QVector<QList<matrix<double> > >& Ar_,
-                     QVector<QVector<QVector<QVector<double> > > > *PDCFRes_) {
+                     QVector<QVector<QVector<QVector<double> > > > *PDCFRes_,
+                     const int & cpuCount_) {
 
     cmtObj = cmtObj_;
     Lags = Lags_;
@@ -42,6 +43,7 @@ void PDCF::setParams(CommonMathTools *cmtObj_,
     freqTo = freqTo_;
     Ar = Ar_;
     PDCFRes = PDCFRes_;
+    cpuCount = cpuCount_;
 }
 
 void PDCF::run() {
@@ -83,7 +85,7 @@ void PDCF::calcPDCF() {
             emit infoMsg(QString("PDC: starting estimating covariance matrix of %1 system").arg(Ari));
             matrix<double> H(N*P, N*P);
             matrix<double> R(N*P, N*P);
-            int threadCount = QThread::idealThreadCount();
+            int threadCount = cpuCount;
             if (threadCount < 1) threadCount = 1;
             for (int i = 0; i < N; i += threadCount) {
                 QVector<CalcRBlock *> threads;
