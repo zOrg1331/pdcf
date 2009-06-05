@@ -12,8 +12,7 @@ class PdcfShell : public QObject {
     Q_OBJECT
 
 public:
-    PdcfShell(QStringList filesWithData,
-              bool calcOnlyAr = false,
+    PdcfShell(QStringList filesWithData = QStringList(),
               int dimFrom = 1,
               int dimTo = 0,
               int dimStep = 0,
@@ -24,10 +23,29 @@ public:
               int dataFrom = 0,
               int dataTo = 0,
               int dataStep = 0,
-              int cpuCount = 1);
+              int cpuCount = 1,
+              bool fromGUI = false);
     ~PdcfShell();
 
     void startCalc();
+
+    void setParams(QStringList filesWithData,
+                   int dimFrom,
+                   int dimTo,
+                   int dimStep,
+                   int shiftFrom,
+                   int shiftTo,
+                   int shiftStep,
+                   int window,
+                   int dataFrom,
+                   int dataTo,
+                   int dataStep,
+                   int cpuCount,
+                   bool fromGUI);
+
+signals:
+    void allFinishedSignal();
+    void infoMsg(QString);
 
 private:
     void printResult();
@@ -47,7 +65,6 @@ private:
     QTime t;
 
     QStringList filesWithData;
-    bool calcOnlyAr;
     int dimFrom;
     int dimTo;
     int dimStep;
@@ -59,6 +76,7 @@ private:
     int dataTo;
     int dataStep;
     int cpuCount;
+    bool fromGUI;
 
     int currDataFrom;
     int currDataTo;

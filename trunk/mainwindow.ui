@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>739</width>
-    <height>390</height>
+    <width>737</width>
+    <height>388</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -49,6 +49,102 @@
            </widget>
           </item>
           <item>
+           <widget class="QGroupBox" name="dataBox">
+            <property name="title">
+             <string>Данные</string>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <item>
+              <layout class="QGridLayout" name="gridLayout_4">
+               <item row="0" column="0">
+                <widget class="QLabel" name="dataFromLabel">
+                 <property name="text">
+                  <string>от</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QLineEdit" name="dataFromEdit">
+                 <property name="text">
+                  <string>0</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="2">
+                <widget class="QLabel" name="dataToLabel">
+                 <property name="text">
+                  <string>до</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="3">
+                <widget class="QLineEdit" name="dataToEdit">
+                 <property name="text">
+                  <string>0</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="4">
+                <widget class="QLabel" name="dataStepLabel">
+                 <property name="text">
+                  <string>ч/з</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="5">
+                <widget class="QLineEdit" name="dataStepEdit">
+                 <property name="text">
+                  <string>0</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="2" colspan="3">
+                <widget class="QLabel" name="windowLabel">
+                 <property name="text">
+                  <string>размер окна</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="5">
+                <widget class="QLineEdit" name="windowEdit">
+                 <property name="text">
+                  <string>0</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="calcBox">
+            <property name="title">
+             <string>Настройка расчета</string>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_5">
+               <item>
+                <widget class="QLabel" name="cpuCountLabel">
+                 <property name="text">
+                  <string>количество процессоров:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="cpuCountEdit">
+                 <property name="text">
+                  <string>1</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
            <widget class="QGroupBox" name="estimateBox">
             <property name="title">
              <string>Выполнить:</string>
@@ -57,26 +153,9 @@
              <item>
               <layout class="QGridLayout" name="gridLayout_2">
                <item row="0" column="0">
-                <widget class="QPushButton" name="estLSButton">
-                 <property name="text">
-                  <string>Рассчитать к-ты АР-модели</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0">
                 <widget class="QPushButton" name="estPDCButton">
                  <property name="text">
                   <string>Рассчитать PDC</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QCheckBox" name="estChBox">
-                 <property name="text">
-                  <string>Считать PDC авт.</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
                  </property>
                 </widget>
                </item>
@@ -187,96 +266,30 @@
                  </property>
                 </widget>
                </item>
-               <item row="2" column="0">
-                <widget class="QLabel" name="freqLabel">
-                 <property name="text">
-                  <string>Частоты от</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="1">
-                <widget class="QLineEdit" name="freqFromEdit">
-                 <property name="text">
-                  <string>0</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="2">
-                <widget class="QLabel" name="freqToLabel">
-                 <property name="text">
-                  <string>Гц, до</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="3">
-                <widget class="QLineEdit" name="freqToEdit">
-                 <property name="text">
-                  <string>0</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="4">
-                <widget class="QLabel" name="vibLabel">
-                 <property name="text">
-                  <string>Гц, оцифровка</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="5">
-                <widget class="QLineEdit" name="vibEdit">
-                 <property name="text">
-                  <string>1000</string>
-                 </property>
-                </widget>
-               </item>
               </layout>
              </item>
              <item row="1" column="0">
-              <widget class="QLabel" name="arCoeffsLabel">
-               <property name="text">
-                <string>Коэффициенты АР модели:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0" colspan="2">
-              <widget class="QTabWidget" name="arCoeffsTabs">
-               <property name="currentIndex">
-                <number>1</number>
-               </property>
-               <widget class="QWidget" name="tab">
-                <attribute name="title">
-                 <string>Tab 1</string>
-                </attribute>
-               </widget>
-               <widget class="QWidget" name="tab_2">
-                <attribute name="title">
-                 <string>Tab 2</string>
-                </attribute>
-               </widget>
-              </widget>
-             </item>
-             <item row="3" column="0">
               <widget class="QLabel" name="lagsLabel">
                <property name="text">
                 <string>Лаги:</string>
                </property>
               </widget>
              </item>
-             <item row="3" column="1">
+             <item row="1" column="1">
               <widget class="QLabel" name="shiftsLabel">
                <property name="text">
                 <string>Сдвиги:</string>
                </property>
               </widget>
              </item>
-             <item row="4" column="0">
+             <item row="2" column="0">
               <widget class="QTableWidget" name="lagsTableWidget">
                <property name="cornerButtonEnabled">
                 <bool>false</bool>
                </property>
               </widget>
              </item>
-             <item row="4" column="1">
+             <item row="2" column="1">
               <widget class="QTableWidget" name="shiftsTableWidget"/>
              </item>
             </layout>

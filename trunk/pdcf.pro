@@ -3,8 +3,8 @@ QT += gui
 CONFIG += gui
 
 # to disable graphical user interface uncomment here
-QT -= gui
-CONFIG -= gui
+#QT -= gui
+#CONFIG -= gui
 
 TARGET = pdcf
 CONFIG -= app_bundle
@@ -38,6 +38,3 @@ gui {
 }
 
 LIBS += -L./ -lboost_program_options
-gui {
-    LIBS -= -L./ -lboost_program_options
-}

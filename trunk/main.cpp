@@ -151,7 +151,6 @@ int main(int argc, char *argv[]) {
     }
     try {
         std::vector<string> filesWithData;
-        bool calcOnlyAr = false;
         int dimFrom = 1;
         int dimTo = 0;
         int dimStep = 0;
@@ -169,8 +168,6 @@ int main(int argc, char *argv[]) {
                 ("help", "produce help message")
                 ("input-files,I", po::value< std::vector<string> >(&filesWithData),
                  "files with data to analyse")
-                ("ar-only", po::value<bool>(&calcOnlyAr)->default_value(0),
-                 "calculate only AR models")
                 ("d-from", po::value<int>(&dimFrom)->default_value(1),
                  "dimension of the AR models (start value)")
                 ("d-to", po::value<int>(&dimTo)->default_value(0),
@@ -233,7 +230,6 @@ int main(int argc, char *argv[]) {
             filesWithDataSL << QString::fromStdString(filesWithData[i]);
         }
         PdcfShell pdcfShell(filesWithDataSL,
-                            calcOnlyAr,
                             dimFrom,
                             dimTo,
                             dimStep,
@@ -244,7 +240,8 @@ int main(int argc, char *argv[]) {
                             dataFrom,
                             dataTo,
                             dataStep,
-                            cpuCount);
+                            cpuCount,
+                            false);
 
         pdcfShell.startCalc();
         return a.exec();
