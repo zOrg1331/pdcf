@@ -4,7 +4,6 @@
 #include "pdcf.h"
 
 PdcfShell::PdcfShell(QStringList filesWithData,
-                     bool calcOnlyAr,
                      int dimFrom,
                      int dimTo,
                      int dimStep,
@@ -15,12 +14,13 @@ PdcfShell::PdcfShell(QStringList filesWithData,
                      int dataFrom,
                      int dataTo,
                      int dataStep,
-                     int cpuCount) :
-filesWithData(filesWithData), calcOnlyAr(calcOnlyAr),
+                     int cpuCount,
+                     bool fromGUI) :
+filesWithData(filesWithData),
 dimFrom(dimFrom), dimTo(dimTo), dimStep(dimStep),
 shiftFrom(shiftFrom), shiftTo(shiftTo), shiftStep(shiftStep),
 window(window), dataFrom(dataFrom), dataTo(dataTo), dataStep(dataStep),
-cpuCount(cpuCount)
+cpuCount(cpuCount), fromGUI(fromGUI)
 
 {
     cmtObj = new CommonMathTools;
@@ -144,11 +144,8 @@ void PdcfShell::estLSFinished() {
             pi++;
         }
     }
-    if (!calcOnlyAr) {
-        estPDCF();
-    } else {
-        incDataInterval();
-    }
+
+    estPDCF();
 }
 
 void PdcfShell::estPDCF() {
@@ -359,6 +356,9 @@ void PdcfShell::setStatusMsg(QString str) {
     out_log << t.elapsed() << " : " << currDataFrom << "-" << currDataTo << " " << str << "\n";
     out_log.flush();
     log_out.flush();
+    if (fromGUI) {
+        emit infoMsg(str);
+    }
 }
 
 void PdcfShell::printReport() {
@@ -427,6 +427,42 @@ void PdcfShell::incDataInterval() {
 
         estLS();
     } else {
-        exit(0);
+        if (fromGUI) {
+            emit allFinishedSignal();
+        } else {
+            exit(0);
+        }
     }
+}
+
+void PdcfShell::setParams(QStringList filesWithData_,
+                   int dimFrom_,
+                   int dimTo_,
+                   int dimStep_,
+                   int shiftFrom_,
+                   int shiftTo_,
+                   int shiftStep_,
+                   int window_,
+                   int dataFrom_,
+                   int dataTo_,
+                   int dataStep_,
+                   int cpuCount_,
+                   bool fromGUI_) {
+    filesWithData = filesWithData_;
+    dimFrom = dimFrom_;
+    dimTo = dimTo_;
+    dimStep = dimStep_;
+    shiftFrom = shiftFrom_;
+    shiftTo = shiftTo_;
+    shiftStep = shiftStep_;
+    window = window_;
+    dataFrom = dataFrom_;
+    dataTo = dataTo_;
+    dataStep = dataStep_;
+    cpuCount = cpuCount_;
+    fromGUI = fromGUI_;
+
+    currDataFrom = dataFrom;
+    currDataTo = dataTo;
+
 }
