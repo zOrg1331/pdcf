@@ -53,6 +53,7 @@ int CommonMathTools::loadTS(const QStringList & fileNames) {
             summ2 += currNum*currNum;
             line++;
         }
+        line--;
         summ1 /= line;
         summ2 /= line;
         disp = summ2 - summ1*summ1;
