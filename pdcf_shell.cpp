@@ -16,11 +16,11 @@ PdcfShell::PdcfShell(QStringList filesWithData,
                      int dataStep,
                      int cpuCount,
                      bool fromGUI) :
-filesWithData(filesWithData),
-dimFrom(dimFrom), dimTo(dimTo), dimStep(dimStep),
-shiftFrom(shiftFrom), shiftTo(shiftTo), shiftStep(shiftStep),
-window(window), dataFrom(dataFrom), dataTo(dataTo), dataStep(dataStep),
-cpuCount(cpuCount), fromGUI(fromGUI)
+    filesWithData(filesWithData),
+    dimFrom(dimFrom), dimTo(dimTo), dimStep(dimStep),
+    shiftFrom(shiftFrom), shiftTo(shiftTo), shiftStep(shiftStep),
+    window(window), dataFrom(dataFrom), dataTo(dataTo), dataStep(dataStep),
+    cpuCount(cpuCount), fromGUI(fromGUI)
 
 {
     cmtObj = new CommonMathTools;
@@ -111,7 +111,8 @@ void PdcfShell::estLS() {
                      cmtObj,
                      dimFrom, dimTo, dimStep,
                      shiftFrom, shiftTo, shiftStep,
-                     Lags, Shifts, &Ar, cpuCount);
+                     // Lags, Shifts,
+					 &Ar, cpuCount);
 
     lsObj->start();
 }
@@ -184,7 +185,7 @@ void PdcfShell::estPDCF() {
     double freqTo = 0;
     if ((freqFrom == 0) && (freqTo == 0)) freqTo = 0.5;
 
-    pdcfObj->setParams(cmtObj, Lags, Shifts,
+    pdcfObj->setParams(cmtObj, // Lags, Shifts,
                        dimFrom, dimTo, dimStep,
                        shiftFrom, shiftTo, shiftStep,
                        freqFrom, freqTo, Ar, &pdcfResult, cpuCount);
@@ -436,18 +437,18 @@ void PdcfShell::incDataInterval() {
 }
 
 void PdcfShell::setParams(QStringList filesWithData_,
-                   int dimFrom_,
-                   int dimTo_,
-                   int dimStep_,
-                   int shiftFrom_,
-                   int shiftTo_,
-                   int shiftStep_,
-                   int window_,
-                   int dataFrom_,
-                   int dataTo_,
-                   int dataStep_,
-                   int cpuCount_,
-                   bool fromGUI_) {
+                          int dimFrom_,
+                          int dimTo_,
+                          int dimStep_,
+                          int shiftFrom_,
+                          int shiftTo_,
+                          int shiftStep_,
+                          int window_,
+                          int dataFrom_,
+                          int dataTo_,
+                          int dataStep_,
+                          int cpuCount_,
+                          bool fromGUI_) {
     filesWithData = filesWithData_;
     dimFrom = dimFrom_;
     dimTo = dimTo_;

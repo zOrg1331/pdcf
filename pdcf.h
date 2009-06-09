@@ -14,12 +14,12 @@ class PDCF : public QThread
 {
     Q_OBJECT
 
-public:
+    public:
     PDCF();
 
     void setParams(CommonMathTools *cmtObj,
-                   const matrix<double> & Lags,
-                   const matrix<double> & Shifts,
+                   /* const matrix<double> & Lags, */
+                   /* const matrix<double> & Shifts, */
                    const int & P_from,
                    const int & P_to,
                    const int & P_inc,
@@ -56,16 +56,16 @@ private:
                                          const double & freq);
 
     double calcCov(CommonMathTools *cmtObj,
-                   const matrix<double> & Lags,
-                   const matrix<double> & Shifts,
+                   /* const matrix<double> & Lags, */
+                   /* const matrix<double> & Shifts, */
                    const int & i,
                    const int & j,
                    const int & k,
                    const int & l);
 
     CommonMathTools *cmtObj;
-    matrix<double> Lags;
-    matrix<double> Shifts;
+    /* matrix<double> Lags; */
+    /* matrix<double> Shifts; */
     int P_from;
     int P_to;
     int P_inc;

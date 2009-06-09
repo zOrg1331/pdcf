@@ -12,15 +12,15 @@ class CalcCRow : public QThread
 {
     Q_OBJECT
 
-public:
+    public:
     CalcCRow(CommonMathTools *cmtObj,
              const int & TSNum,
              const int & Nu,
              const int & P,
              const int & S,
              const int & M,
-             const matrix<double> & Lags,
-             const matrix<double> & Shifts,
+             /* const matrix<double> & Lags, */
+             /* const matrix<double> & Shifts, */
              const int & row,
              const int & N,
              matrix<double> *C);
@@ -38,13 +38,11 @@ private:
     int P;
     int S;
     int M;
-    matrix<double> Lags;
-    matrix<double> Shifts;
+    /* matrix<double> Lags; */
+    /* matrix<double> Shifts; */
     int row;
     int N;
     matrix<double> *C;
-
-    int TSLen;
 };
 
 #endif // CALCCROW_H

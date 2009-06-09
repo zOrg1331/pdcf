@@ -11,7 +11,7 @@
 class PdcfShell : public QObject {
     Q_OBJECT
 
-public:
+    public:
     PdcfShell(QStringList filesWithData = QStringList(),
               int dimFrom = 1,
               int dimTo = 0,
