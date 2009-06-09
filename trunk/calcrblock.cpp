@@ -4,8 +4,8 @@ CalcRBlock::CalcRBlock(const int & P_,
                        const int & N_,
                        const int & S_,
                        CommonMathTools *cmtObj_,
-                       const matrix<double> & Lags_,
-                       const matrix<double> & Shifts_,
+                       // const matrix<double> & Lags_,
+                       // const matrix<double> & Shifts_,
                        const int & i_,
                        matrix<double> *R_,
                        matrix<double> *H_) {
@@ -13,8 +13,8 @@ CalcRBlock::CalcRBlock(const int & P_,
     N = N_;
     S = S_;
     cmtObj = cmtObj_;
-    Lags = Lags_;
-    Shifts = Shifts_;
+    // Lags = Lags_;
+    // Shifts = Shifts_;
     i = i_;
     R = R_;
     H = H_;

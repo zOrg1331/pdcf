@@ -6,8 +6,8 @@ CalcCRow::CalcCRow(CommonMathTools *cmtObj_,
                    const int & P_,
                    const int & S_,
                    const int & M_,
-                   const matrix<double> & Lags_,
-                   const matrix<double> & Shifts_,
+                   // const matrix<double> & Lags_,
+                   // const matrix<double> & Shifts_,
                    const int & row_,
                    const int & N_,
                    matrix<double> *C_) {
@@ -17,13 +17,11 @@ CalcCRow::CalcCRow(CommonMathTools *cmtObj_,
     P = P_;
     S = S_;
     M = M_;
-    Lags = Lags_;
-    Shifts = Shifts_;
+    // Lags = Lags_;
+    // Shifts = Shifts_;
     row = row_;
     N = N_;
     C = C_;
-
-    TSLen = cmtObj->getTSlen();
 }
 
 double CalcCRow::calcPhi(const int & index,
@@ -31,36 +29,30 @@ double CalcCRow::calcPhi(const int & index,
 
     if (Nu == 1) {
 
-        double x1 = 0;
         if (index == -1) {
             //                x1 = cmtObj->getTSvalue(TSNum, num-S);
-            x1 = cmtObj->getTSvalueNorm(TSNum, num/*-S*/);
-            return x1;
+            return cmtObj->getTSvalueNorm(TSNum, num/*-S*/);
         }
 
-        int ip = index/P;
         //            x1 = cmtObj->getTSvalue(ip,
         //                                    num-
         //                                    //Lags(TSNum, ip)*
         //                                    (index-ip*P+1)/*-
         //                                    Shifts(TSNum, ip)*/-
         //                                                       S);
+        int ip = index/P;
         if (ip == TSNum) {
-            x1 = cmtObj->getTSvalueNorm(ip,
-                                        num-
-                                        //Lags(TSNum, ip)*
-                                        (index-ip*P+1)/*-
-                                    Shifts(TSNum, ip)*/);
-
-            return x1;
+            return cmtObj->getTSvalueNorm(ip,
+                                          num-
+                                          //Lags(TSNum, ip)*
+                                          (index-ip*P+1)/*-
+                                                          Shifts(TSNum, ip)*/);
         } else {
-            x1 = cmtObj->getTSvalueNorm(ip,
-                                        num-
-                                        //Lags(TSNum, ip)*
-                                        (index-ip*P+1)/*-
-                                    Shifts(TSNum, ip)*/-S);
-
-            return x1;
+            return cmtObj->getTSvalueNorm(ip,
+                                          num-
+                                          //Lags(TSNum, ip)*
+                                          (index-ip*P+1)/*-
+                                                          Shifts(TSNum, ip)*/-S);
         }
     } else {
         return 0;
@@ -68,13 +60,11 @@ double CalcCRow::calcPhi(const int & index,
 }
 
 void CalcCRow::run() {
+	double summC = 0;
     for (int col = 0; col < P*M; col++) {
-        double summC = 0;
-        double x1C, x2C;
+        summC = 0;
         for (int n = 0; n < N; n++) {
-            x1C = calcPhi(row, n);
-            x2C = calcPhi(col, n);
-            summC += x1C*x2C;
+            summC += calcPhi(row, n)*calcPhi(col, n);
         }
 
         C->at_element(row, col) = summC;

@@ -10,7 +10,7 @@ class CommonMathTools : public QObject
 {
     Q_OBJECT
 
-public:
+    public:
     CommonMathTools();
 
     int loadTS(const QStringList & fileNames);

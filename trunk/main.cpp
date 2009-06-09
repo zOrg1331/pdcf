@@ -86,9 +86,9 @@ void generateData() {
 //        x3[i] = -0.3*x2[i-1] - 0.2*x3[i-1] + 1.0*norm_rand2();
 
         x1[i] = (1.4959)*x1[i-1]+(-0.67032)*x1[i-2]
-                +1.0*norm_rand();
+            +1.0*norm_rand();
         x2[i] = (1.4959)*x2[i-1]+(-0.67032)*x2[i-2]
-                +1.0*norm_rand1();
+            +1.0*norm_rand1();
 
 //        x1[i] =  ( 0.6)*x1[i-1]
 //                +(0.65)*x2[i-2]
@@ -124,13 +124,13 @@ void generateData() {
 }
 
 /********************************************************
-  * Full parameter list:
-  * - files to analyse
-  * - calc only AR models
-  * - dimension from, dimenstion to, dimension step
-  * - shift from, shift to, shift step
-  * - frequency from, frequency to, frequency
-  *******************************************************/
+ * Full parameter list:
+ * - files to analyse
+ * - calc only AR models
+ * - dimension from, dimenstion to, dimension step
+ * - shift from, shift to, shift step
+ * - frequency from, frequency to, frequency
+ *******************************************************/
 
 int main(int argc, char *argv[]) {
 
@@ -165,33 +165,33 @@ int main(int argc, char *argv[]) {
 
         po::options_description desc("Allowed options");
         desc.add_options()
-                ("help", "produce help message")
-                ("input-files,I", po::value< std::vector<string> >(&filesWithData),
-                 "files with data to analyse")
-                ("d-from", po::value<int>(&dimFrom)->default_value(1),
-                 "dimension of the AR models (start value)")
-                ("d-to", po::value<int>(&dimTo)->default_value(0),
-                 "dimension of the AR models (end value)")
-                ("d-step", po::value<int>(&dimStep)->default_value(0),
-                 "dimension of the AR models (step value)")
-                ("shift-from", po::value<int>(&shiftFrom)->default_value(0),
-                 "time shift of the timeseries (start value)")
-                ("shift-to", po::value<int>(&shiftTo)->default_value(0),
-                 "time shift of the timeseries (end value)")
-                ("shift-step", po::value<int>(&shiftStep)->default_value(0),
-                 "time shift of the timeseries (step value)")
-                ("window", po::value<int>(&window)->default_value(0),
-                 "window in witch analyse input data files")
-                ("data-from", po::value<int>(&dataFrom)->default_value(0),
-                 "data point in timeseries (start value)")
-                ("data-to", po::value<int>(&dataTo)->default_value(0),
-                 "data point in timeseries (end value)")
-                ("data-step", po::value<int>(&dataStep)->default_value(0),
-                 "data point in timeseries (step value)")
-                ("daemon-mode", "go into daemon mode")
-                ("cpu-count", po::value<int>(&cpuCount)->default_value(1),
-                 "CPU cores to use")
-                ;
+            ("help", "produce help message")
+            ("input-files,I", po::value< std::vector<string> >(&filesWithData),
+             "files with data to analyse")
+            ("d-from", po::value<int>(&dimFrom)->default_value(1),
+             "dimension of the AR models (start value)")
+            ("d-to", po::value<int>(&dimTo)->default_value(0),
+             "dimension of the AR models (end value)")
+            ("d-step", po::value<int>(&dimStep)->default_value(0),
+             "dimension of the AR models (step value)")
+            ("shift-from", po::value<int>(&shiftFrom)->default_value(0),
+             "time shift of the timeseries (start value)")
+            ("shift-to", po::value<int>(&shiftTo)->default_value(0),
+             "time shift of the timeseries (end value)")
+            ("shift-step", po::value<int>(&shiftStep)->default_value(0),
+             "time shift of the timeseries (step value)")
+            ("window", po::value<int>(&window)->default_value(0),
+             "window in witch analyse input data files")
+            ("data-from", po::value<int>(&dataFrom)->default_value(0),
+             "data point in timeseries (start value)")
+            ("data-to", po::value<int>(&dataTo)->default_value(0),
+             "data point in timeseries (end value)")
+            ("data-step", po::value<int>(&dataStep)->default_value(0),
+             "data point in timeseries (step value)")
+            ("daemon-mode", "go into daemon mode")
+            ("cpu-count", po::value<int>(&cpuCount)->default_value(1),
+             "CPU cores to use")
+            ;
 
         po::positional_options_description p;
         po::variables_map vm;
@@ -247,8 +247,8 @@ int main(int argc, char *argv[]) {
         return a.exec();
     }
     catch(std::exception& e)
-    {
-        cout << e.what() << "\n";
-        return 1;
-    }
+        {
+            cout << e.what() << "\n";
+            return 1;
+        }
 }

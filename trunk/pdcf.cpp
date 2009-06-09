@@ -16,8 +16,8 @@ PDCF::PDCF() {
 }
 
 void PDCF::setParams(CommonMathTools *cmtObj_,
-                     const matrix<double> & Lags_,
-                     const matrix<double> & Shifts_,
+                     // const matrix<double> & Lags_,
+                     // const matrix<double> & Shifts_,
                      const int & P_from_,
                      const int & P_to_,
                      const int & P_inc_,
@@ -31,8 +31,8 @@ void PDCF::setParams(CommonMathTools *cmtObj_,
                      const int & cpuCount_) {
 
     cmtObj = cmtObj_;
-    Lags = Lags_;
-    Shifts = Shifts_;
+    // Lags = Lags_;
+    // Shifts = Shifts_;
     P_from = P_from_;
     P_to = P_to_;
     P_inc = P_inc_;
@@ -91,9 +91,10 @@ void PDCF::calcPDCF() {
                 QVector<CalcRBlock *> threads;
                 for (int thr_i = 0; thr_i < threadCount; thr_i++) {
                     if ((i+thr_i) < N) {
-                        CalcRBlock *thr = new CalcRBlock(P, N, Sh, cmtObj, Lags, Shifts,
-                                                       i+thr_i,
-                                                       &R, &H);
+                        CalcRBlock *thr = new CalcRBlock(P, N, Sh, cmtObj,
+                                                         // Lags, Shifts,
+                                                         i+thr_i,
+                                                         &R, &H);
                         threads.append(thr);
                         thr->start();
                     }
@@ -102,33 +103,11 @@ void PDCF::calcPDCF() {
                     threads.at(thr_i)->wait();
                 }
 
-//                CalcRBlock thr1(P, N, Sh, cmtObj, Lags, Shifts, i, &R, &H);
-//                thr1.start();
-//                if ((i+1) < N) {
-//                    CalcRBlock thr2(P, N, Sh, cmtObj, Lags, Shifts, i+1, &R, &H);
-//                    thr2.start();
-//                    thr1.wait();
-//                    thr2.wait();
-//                } else {
-//                    thr1.wait();
-//                }
                 QString str = QString("PDC: estimating R: estimated %1 of %2 blocks of %3 system")
-//                              .arg(i+1)
-                              .arg(i+threadCount)
-                              .arg(N)
-                              .arg(Ari);
+                    .arg(i+threadCount)
+                    .arg(N)
+                    .arg(Ari);
                 emit infoMsg(str);
-                //for (int j = 0; j < N; j += 2) {
-                //                for (int k = 0; k < P; k++) {
-                //                    for (int l = 0; l < P; l++) {
-                //                        // считаем ковариацию между временными рядами i и j систем
-                //                        // при соответствующих размерностях k и l
-                //                        R(i*P+k, j*P+l) = calcCov(cmtObj, Lags, Shifts, i, j, k+1, l+1);
-                //                        H(i*P+k, j*P+l) = 0;
-                //                    }
-                //                }
-                //  }
-                //}
                 for (int thr_i = 0; thr_i < threads.count(); thr_i++) {
                     delete threads[thr_i];
                 }
@@ -159,7 +138,6 @@ void PDCF::calcPDCF() {
                     }
                     eXX /= (double)Res.at(ts).count();
                     Z(ts, ts) = eXX;
-                    //                qDebug() << "Z" << ts << Z(ts, ts);
                 }
             }
             emit infoMsg(QString("PDC: extimating noise covariance matrix finished of %1 system").arg(Ari));
@@ -188,15 +166,15 @@ void PDCF::calcPDCF() {
                         // считаем PDCF
                         double pdcf = sqrt( AfI(dest, source).real() * AfI(dest, source).real() +
                                             AfI(dest, source).imag() * AfI(dest, source).imag() ) /
-                                      sqrt( summ );
+                            sqrt( summ );
                         result[freqI][dest+source*N][0] = pdcf;
 
                         double summ1 = 0;
                         for (int ki = 0; ki < P; ki++) {
                             for (int li = 0; li < P; li++) {
                                 summ1 += H(source*P+ki, source*P+li)
-                                         * (cos(ki*2*PI*freq)*cos(li*2*PI*freq)
-                                            + sin(ki*2*PI*freq)*sin(li*2*PI*freq));
+                                    * (cos(ki*2*PI*freq)*cos(li*2*PI*freq)
+                                       + sin(ki*2*PI*freq)*sin(li*2*PI*freq));
                             }
                         }
                         double C = Z(dest, dest)*summ1;
@@ -257,27 +235,11 @@ matrix<std::complex<double> > PDCF::calcAf(const QList<matrix<double> >& Ar,
 }
 
 double PDCF::calcCov(CommonMathTools *cmtObj,
-                     const matrix<double> & Lags,
-                     const matrix<double> & Shifts,
+                     // const matrix<double> & Lags,
+                     // const matrix<double> & Shifts,
                      const int & i, // система i
                      const int & j, // система j
                      const int & k,
                      const int & l) {
     qDebug() << "ACHTUNG!";
-//    int TSLen = cmtObj->getTSlen();
-//    double eXi = 0;
-//    double eXj = 0;
-//    double eXji = 0;
-//    double x1 = 0, x2 = 0;
-//    for (int r = ((k>l) ? k : l); r < TSLen; r++) {
-//        x1 = cmtObj->getTSvalue(i, r-k*Lags(i, j)-Shifts(i, j));
-//        eXi += x1;
-//        x2 = cmtObj->getTSvalue(j, r-l*Lags(i, j)-Shifts(i, j));
-//        eXj += x2;
-//        eXji += x1*x2;
-//    }
-//    eXi /= TSLen;//-((k>l) ? k : l);
-//    eXj /= TSLen;//-((k>l) ? k : l);
-//    eXji /= TSLen;//-((k>l) ? k : l);
-//    return (eXji - eXi*eXj);
 }

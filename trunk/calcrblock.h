@@ -12,13 +12,13 @@ class CalcRBlock : public QThread
 {
     Q_OBJECT
 
-public:
+    public:
     CalcRBlock(const int & P,
                const int & N,
                const int & S,
                CommonMathTools *cmtObj,
-               const matrix<double> & Lags,
-               const matrix<double> & Shifts,
+               /* const matrix<double> & Lags, */
+               /* const matrix<double> & Shifts, */
                const int & i,
                matrix<double> *R,
                matrix<double> *H);
@@ -35,8 +35,8 @@ private:
     int N;
     int S;
     CommonMathTools *cmtObj;
-    matrix<double> Lags;
-    matrix<double> Shifts;
+    /* matrix<double> Lags; */
+    /* matrix<double> Shifts; */
     int i;
     matrix<double> *R;
     matrix<double> *H;

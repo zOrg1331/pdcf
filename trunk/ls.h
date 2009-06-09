@@ -12,7 +12,7 @@ class LS : public QThread
 {
     Q_OBJECT
 
-public:
+    public:
     LS();
 
     void setParams(const QString & baseDir,
@@ -23,8 +23,8 @@ public:
                    const int & S_from,
                    const int & S_to,
                    const int & S_inc,
-                   const matrix<double> & Lags,
-                   const matrix<double> & Shifts,
+                   /* const matrix<double> & Lags, */
+                   /* const matrix<double> & Shifts, */
                    QVector<QList<matrix<double> > > *ls_coeffs_list,
                    const int & cpuCount);
 
@@ -52,8 +52,8 @@ private:
     int S_from;
     int S_to;
     int S_inc;
-    matrix<double> Lags;
-    matrix<double> Shifts;
+    /* matrix<double> Lags; */
+    /* matrix<double> Shifts; */
     QVector<QList<matrix<double> > > *ls_coeffs_list;
     int cpuCount;
 
