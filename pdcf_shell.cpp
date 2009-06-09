@@ -63,7 +63,6 @@ void PdcfShell::startCalc() {
         currDataTo = cmtObj->getTSlenAbs();
         if (window != 0) currDataTo = currDataFrom + window;
     }
-
     cmtObj->setDataWindow(currDataFrom, currDataTo);
 
     QString windowDir = QString("./%1/%2-%3").arg(dirName).arg(currDataFrom).arg(currDataTo);
