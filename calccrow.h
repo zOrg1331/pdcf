@@ -14,23 +14,23 @@ class CalcCRow : public QThread
 
     public:
     CalcCRow(CommonMathTools *cmtObj,
-             const int & TSNum,
-             const int & Nu,
-             const int & P,
-             const int & S,
-             const int & M,
+             const int TSNum,
+             const int Nu,
+             const int P,
+             const int S,
+             const int M,
              /* const matrix<double> & Lags, */
              /* const matrix<double> & Shifts, */
-             const int & row,
-             const int & N,
+             const int row,
+             const int N,
              matrix<double> *C);
 
 protected:
     void run();
 
 private:
-    double calcPhi(const int & index,
-                   const int & num);
+    double calcPhi(const int index,
+                   const int num);
 
     CommonMathTools *cmtObj;
     int TSNum;

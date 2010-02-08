@@ -37,21 +37,37 @@ void CalcRBlock::run() {
 double CalcRBlock::calcCov(const int & j,
                            const int & k,
                            const int & l) {
+    // расчет ковариации между i и j системами
+    // с учетом возможного сдвига.
     double eXi = 0;
     double eXj = 0;
     double eXji = 0;
     double x1 = 0, x2 = 0;
-    for (int r = 0; r < TSLen; r++) {
-        //            x1 = cmtObj->getTSvalue(i, r-k-S/**Lags(i, j)-Shifts(i, j)*/);
-        x1 = cmtObj->getTSvalueNorm(i, r-k /*-S*/ /**Lags(i, j)-Shifts(i, j)*/);
+    int r_start = (i != j) ? S : 0;
+    int TSLen_real = (i != j) ? (TSLen-S) : TSLen;
+    for (int r = r_start; r < TSLen; r++) {
+        if (i != j) {
+            x1 = cmtObj->getTSvalueNorm(i, r-k /*-S*/ /**Lags(i, j)-Shifts(i, j)*/);
+            x2 = cmtObj->getTSvalueNorm(j, r-l -S /**Lags(i, j)-Shifts(i, j)*/);
+        } else {
+            x1 = cmtObj->getTSvalueNorm(i, r-k /*-S*/ /**Lags(i, j)-Shifts(i, j)*/);
+            x2 = cmtObj->getTSvalueNorm(j, r-l /*-S*/ /**Lags(i, j)-Shifts(i, j)*/);
+        }
         eXi += x1;
-        //            x2 = cmtObj->getTSvalue(j, r-l-S/**Lags(i, j)-Shifts(i, j)*/);
-        x2 = cmtObj->getTSvalueNorm(j, r-l /*-S*/ /**Lags(i, j)-Shifts(i, j)*/);
         eXj += x2;
-        eXji += x1*x2;
     }
-    eXi /= (double)TSLen;
-    eXj /= (double)TSLen;
-    eXji /= (double)TSLen;
-    return (eXji - eXi*eXj);
+    eXi /= (double)TSLen_real;
+    eXj /= (double)TSLen_real;
+    for (int r = r_start; r < TSLen; r++) {
+        if (i != j) {
+            x1 = cmtObj->getTSvalueNorm(i, r-k /*-S*/ /**Lags(i, j)-Shifts(i, j)*/);
+            x2 = cmtObj->getTSvalueNorm(j, r-l -S /**Lags(i, j)-Shifts(i, j)*/);
+        } else {
+            x1 = cmtObj->getTSvalueNorm(i, r-k /*-S*/ /**Lags(i, j)-Shifts(i, j)*/);
+            x2 = cmtObj->getTSvalueNorm(j, r-l /*-S*/ /**Lags(i, j)-Shifts(i, j)*/);
+        }
+        eXji += (x1-eXi)*(x2-eXj);
+    }
+    eXji /= (double)TSLen_real-1;
+    return eXji;
 }

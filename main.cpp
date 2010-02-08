@@ -80,41 +80,46 @@ void generateData() {
     for (int i = 0; i < P; i++) tst_stream3 << x3.at(i) << "\n";
     for (int i = 0; i < P; i++) tst_stream4 << x4.at(i) << "\n";
     for (int i = 0; i < P; i++) tst_stream5 << x5.at(i) << "\n";
-    for (int i = 20; i < 50000; i++) {
+    for (int i = P; i < 50000; i++) {
 //        x1[i] = 0.5*x1[i-1] + 0.3*x2[i-1] + 0.4*x3[i-1] + 1.0*norm_rand();
-//        x2[i] = -0.5*x1[i-1] + 0.3*x2[i-1] + 1.0*x3[i-1] + 0.0*norm_rand1();
+//        x2[i] = -0.5*x1[i-1] + 0.3*x2[i-1] + 1.0*x3[i-1] + 1.0*norm_rand1();
 //        x3[i] = -0.3*x2[i-1] - 0.2*x3[i-1] + 1.0*norm_rand2();
+        
+//        x1[i] = (1.4959)*x1[i-1]+(-0.67032)*x1[i-2]//+0.1*x2[i-15]
+//                +1.0*norm_rand();
+//        x2[i] = (1.8959)*x2[i-1]+(-0.97032)*x2[i-2]
+//                +1.0*norm_rand1();
 
-        x1[i] = (1.4959)*x1[i-1]+(-0.67032)*x1[i-2]
-            +1.0*norm_rand();
-        x2[i] = (1.4959)*x2[i-1]+(-0.67032)*x2[i-2]
-            +1.0*norm_rand1();
+        //        x1[i] = (1.0)*cos((10.0)*x1[i-1]);//+(-0.6)*cos((5.0)*x1[i-2]);// +0.1*cos(5.0*x2[i-2])
+        //                +1.0*norm_rand();
+        //        x2[i] = (1.0)*cos((10.0)*x2[i-1])+(-0.6)*cos((5.0)*x2[i-2])
+        //                +1.0*norm_rand1();
 
-//        x1[i] =  ( 0.6)*x1[i-1]
-//                +(0.65)*x2[i-2]
-//                + 1.0  *norm_rand();
-//        x2[i] =  ( 0.5)*x2[i-1]
-//                +(-0.3)*x2[i-2]
-//                +(-0.3)*x3[i-4]
-//                +( 0.6)*x4[i-1]
-//                + 1.0  *norm_rand1();
-//        x3[i] =  ( 0.8)*x3[i-1]
-//                +(-0.7)*x3[i-2]
-//                +(-0.1)*x5[i-3]
-//                + 1.0  *norm_rand2();
-//        x4[i] =  ( 0.5)*x4[i-1]
-//                +( 0.9)*x3[i-2]
-//                +( 0.4)*x5[i-2]
-//                + 1.0  *norm_rand3();
-//        x5[i] =  ( 0.7)*x5[i-1]
-//                +(-0.5)*x5[i-2]
-//                +(-0.2)*x3[i-1]
-//                + 1.0  *norm_rand4();
+        x1[i] =  ( 0.6)*x1[i-1]
+                 +(0.65)*x2[i-2]
+                 + 1.0  *norm_rand();
+        x2[i] =  ( 0.5)*x2[i-1]
+                 +(-0.3)*x2[i-2]
+                 +(-0.3)*x3[i-4]
+                 +( 0.6)*x4[i-1]
+                 + 1.0  *norm_rand1();
+        x3[i] =  ( 0.8)*x3[i-1]
+                 +(-0.7)*x3[i-2]
+                 +(-0.1)*x5[i-3]
+                 + 1.0  *norm_rand2();
+        x4[i] =  ( 0.5)*x4[i-1]
+                 +( 0.9)*x3[i-2]
+                 +( 0.4)*x5[i-2]
+                 + 1.0  *norm_rand3();
+        x5[i] =  ( 0.7)*x5[i-1]
+                 +(-0.5)*x5[i-2]
+                 +(-0.2)*x3[i-1]
+                 + 1.0  *norm_rand4();
         tst_stream1 << QString("%1").arg(x1[i], 15, 'E', 8, ' ') << "\n";
         tst_stream2 << QString("%1").arg(x2[i], 15, 'E', 8, ' ') << "\n";
-//        tst_stream3 << QString("%1").arg(x3[i], 15, 'E', 8, ' ') << "\n";
-//        tst_stream4 << QString("%1").arg(x4[i], 15, 'E', 8, ' ') << "\n";
-//        tst_stream5 << QString("%1").arg(x5[i], 15, 'E', 8, ' ') << "\n";
+        tst_stream3 << QString("%1").arg(x3[i], 15, 'E', 8, ' ') << "\n";
+        tst_stream4 << QString("%1").arg(x4[i], 15, 'E', 8, ' ') << "\n";
+        tst_stream5 << QString("%1").arg(x5[i], 15, 'E', 8, ' ') << "\n";
     }
     tst_file1.close();
     tst_file2.close();
@@ -158,40 +163,55 @@ int main(int argc, char *argv[]) {
         int shiftTo = 0;
         int shiftStep = 0;
         int window = 0;
-        int dataFrom = 0;
-        int dataTo = 0;
-        int dataStep = 0;
+        int dataStartFrom = 0;
+        int dataStartTo = 0;
+        int dataStartStep = 0;
+        int dataEndFrom = 0;
+        int dataEndTo = 0;
+        int dataEndStep = 0;
+        int dataNorm = 0;
         int cpuCount = 1;
+        int bonf = 0;
 
         po::options_description desc("Allowed options");
         desc.add_options()
-            ("help", "produce help message")
-            ("input-files,I", po::value< std::vector<string> >(&filesWithData),
-             "files with data to analyse")
-            ("d-from", po::value<int>(&dimFrom)->default_value(1),
-             "dimension of the AR models (start value)")
-            ("d-to", po::value<int>(&dimTo)->default_value(0),
-             "dimension of the AR models (end value)")
-            ("d-step", po::value<int>(&dimStep)->default_value(0),
-             "dimension of the AR models (step value)")
-            ("shift-from", po::value<int>(&shiftFrom)->default_value(0),
-             "time shift of the timeseries (start value)")
-            ("shift-to", po::value<int>(&shiftTo)->default_value(0),
-             "time shift of the timeseries (end value)")
-            ("shift-step", po::value<int>(&shiftStep)->default_value(0),
-             "time shift of the timeseries (step value)")
-            ("window", po::value<int>(&window)->default_value(0),
-             "window in witch analyse input data files")
-            ("data-from", po::value<int>(&dataFrom)->default_value(0),
-             "data point in timeseries (start value)")
-            ("data-to", po::value<int>(&dataTo)->default_value(0),
-             "data point in timeseries (end value)")
-            ("data-step", po::value<int>(&dataStep)->default_value(0),
-             "data point in timeseries (step value)")
-            ("daemon-mode", "go into daemon mode")
-            ("cpu-count", po::value<int>(&cpuCount)->default_value(1),
-             "CPU cores to use")
-            ;
+                ("help", "produce help message")
+                ("input-files,I", po::value< std::vector<string> >(&filesWithData),
+                 "files with data to analyse")
+                ("d-from", po::value<int>(&dimFrom)->default_value(1),
+                 "dimension of the AR models (start value)")
+                ("d-to", po::value<int>(&dimTo)->default_value(0),
+                 "dimension of the AR models (end value)")
+                ("d-step", po::value<int>(&dimStep)->default_value(0),
+                 "dimension of the AR models (step value)")
+                ("shift-from", po::value<int>(&shiftFrom)->default_value(0),
+                 "time shift of the timeseries (start value)")
+                ("shift-to", po::value<int>(&shiftTo)->default_value(0),
+                 "time shift of the timeseries (end value)")
+                ("shift-step", po::value<int>(&shiftStep)->default_value(0),
+                 "time shift of the timeseries (step value)")
+                ("window", po::value<int>(&window)->default_value(0),
+                 "window in witch analyse input data files")
+                ("data-start-from", po::value<int>(&dataStartFrom)->default_value(0),
+                 "data point in timeseries (start value)")
+                ("data-start-to", po::value<int>(&dataStartTo)->default_value(0),
+                 "data point in timeseries (end value)")
+                ("data-start-step", po::value<int>(&dataStartStep)->default_value(0),
+                 "data point in timeseries (step value)")
+                ("data-end-from", po::value<int>(&dataEndFrom)->default_value(0),
+                 "data point in timeseries (start value)")
+                ("data-end-to", po::value<int>(&dataEndTo)->default_value(0),
+                 "data point in timeseries (end value)")
+                ("data-end-step", po::value<int>(&dataEndStep)->default_value(0),
+                 "data point in timeseries (step value)")
+                ("data-normalize", po::value<int>(&dataNorm)->default_value(0),
+                 "normalizing input data")
+                ("daemon-mode", "go into daemon mode")
+                ("cpu-count", po::value<int>(&cpuCount)->default_value(1),
+                 "CPU cores to use")
+                ("bonf", po::value<int>(&bonf)->default_value(0),
+                 "use bonferroni?")
+                ;
 
         po::positional_options_description p;
         po::variables_map vm;
@@ -226,7 +246,7 @@ int main(int argc, char *argv[]) {
         }
 
         QStringList filesWithDataSL;
-        for (int i = 0; i < filesWithData.size(); i++) {
+        for (unsigned int i = 0; i < filesWithData.size(); i++) {
             filesWithDataSL << QString::fromStdString(filesWithData[i]);
         }
         PdcfShell pdcfShell(filesWithDataSL,
@@ -237,18 +257,23 @@ int main(int argc, char *argv[]) {
                             shiftTo,
                             shiftStep,
                             window,
-                            dataFrom,
-                            dataTo,
-                            dataStep,
+                            dataStartFrom,
+                            dataStartTo,
+                            dataStartStep,
+                            dataEndFrom,
+                            dataEndTo,
+                            dataEndStep,
+                            dataNorm,
                             cpuCount,
-                            false);
+                            false,
+                            bonf);
 
         pdcfShell.startCalc();
         return a.exec();
     }
     catch(std::exception& e)
-        {
-            cout << e.what() << "\n";
-            return 1;
-        }
+    {
+        cout << e.what() << "\n";
+        return 1;
+    }
 }

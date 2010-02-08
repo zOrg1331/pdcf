@@ -154,6 +154,15 @@ void MainWindow::on_estPDCButton_clicked() {
                          dataFrom,
                          dataTo,
                          dataStep,
+                         dataFrom,
+                         dataTo,
+                         dataStep,
+//                         dataStartFrom,
+//                         dataStartTo,
+//                         dataStartStep,
+//                         dataEndFrom,
+//                         dataEndTo,
+//                         dataEndStep,
                          cpuCount,
                          true);
 

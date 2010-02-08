@@ -3,42 +3,35 @@
 
 #include <QtCore>
 
-#include <boost/numeric/ublas/matrix.hpp>
-using namespace boost::numeric::ublas;
-
 #include "common_math_tools.h"
 
 #define FREQ_RES 1000.0
 
-class PDCF : public QThread
+class PDCF : public QObject
 {
     Q_OBJECT
 
-    public:
+public:
     PDCF();
 
     void setParams(CommonMathTools *cmtObj,
-                   /* const matrix<double> & Lags, */
-                   /* const matrix<double> & Shifts, */
-                   const int & P_from,
-                   const int & P_to,
-                   const int & P_inc,
-                   const int & S_from,
-                   const int & S_to,
-                   const int & S_inc,
-                   const double & freqFrom,
-                   const double & freqTo,
-                   const QVector<QList<matrix<double> > >& Ar,
-                   QVector<QVector<QVector<QVector<double> > > > *PDCFRes,
-                   const int & cpuCount);
+                   const int dimension,
+                   const int shift,
+                   const VECTOR_M & arCoeffs,
+                   const int windowSize,
+                   VECTOR_VVD *PDCFRes);
 
-protected:
-    void run();
+    void startCalc();
 
 signals:
     void infoMsg(QString);
 
 private:
+    double calcCov(const int i,
+                   const int j,
+                   const int k,
+                   const int l);
+
     // функция возвращает указатель вектор векторов
     // 0й элемент внешнего вектора - соответствует 0й частоте
     // FREQ_RES элемент внешнего вектора - соответствует частоте 0.5
@@ -52,31 +45,16 @@ private:
     void calcPDCF();
 
     // вспомогательная функция, переводит матрицу коэффициентов в частотную область
-    matrix<std::complex<double> > calcAf(const QList<matrix<double> >& Ar,
-                                         const double & freq);
-
-    double calcCov(CommonMathTools *cmtObj,
-                   /* const matrix<double> & Lags, */
-                   /* const matrix<double> & Shifts, */
-                   const int & i,
-                   const int & j,
-                   const int & k,
-                   const int & l);
+    MATRIXcmplx calcAf(const VECTOR_M & arCoeffs,
+                       const double freq);
 
     CommonMathTools *cmtObj;
-    /* matrix<double> Lags; */
-    /* matrix<double> Shifts; */
-    int P_from;
-    int P_to;
-    int P_inc;
-    int S_from;
-    int S_to;
-    int S_inc;
-    double freqFrom;
-    double freqTo;
-    QVector<QList<matrix<double> > > Ar;
-    QVector<QVector<QVector<QVector<double> > > > *PDCFRes;
-    int cpuCount;
+    int dimension;
+    int shift;
+    VECTOR_M arCoeffs;
+    VECTOR_VVD *PDCFRes;
+    int windowSize;
+    int TSLen;
 
 };
 
