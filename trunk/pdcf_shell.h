@@ -3,43 +3,30 @@
 
 #include <QtCore>
 
-#include "common_math_tools.h"
-
-#include "ls.h"
-#include "pdcf.h"
-
 class PdcfShell : public QObject {
     Q_OBJECT
 
-    public:
+public:
     PdcfShell(QStringList filesWithData = QStringList(),
-              int dimFrom = 1,
-              int dimTo = 0,
-              int dimStep = 0,
-              int shiftFrom = 0,
-              int shiftTo = 0,
-              int shiftStep = 0,
+              int dimFrom = 1, int dimTo = 0, int dimStep = 0,
+              int shiftFrom = 0, int shiftTo = 0, int shiftStep = 0,
               int window = 0,
-              int dataFrom = 0,
-              int dataTo = 0,
-              int dataStep = 0,
+              int dataStartFrom = 0, int dataStartTo = 0, int dataStartStep = 0,
+              int dataEndFrom = 0, int dataEndTo = 0, int dataEndStep = 0,
+              int dataNorm = 0,
               int cpuCount = 1,
-              bool fromGUI = false);
+              bool fromGUI = false,
+              int bonf = 0);
     ~PdcfShell();
 
     void startCalc();
 
     void setParams(QStringList filesWithData,
-                   int dimFrom,
-                   int dimTo,
-                   int dimStep,
-                   int shiftFrom,
-                   int shiftTo,
-                   int shiftStep,
+                   int dimFrom, int dimTo, int dimStep,
+                   int shiftFrom, int shiftTo, int shiftStep,
                    int window,
-                   int dataFrom,
-                   int dataTo,
-                   int dataStep,
+                   int dataStartFrom, int dataStartTo, int dataStartStep,
+                   int dataEndFrom, int dataEndTo, int dataEndStep,
                    int cpuCount,
                    bool fromGUI);
 
@@ -48,19 +35,13 @@ signals:
     void infoMsg(QString);
 
 private:
-    void printResult();
     void printReport();
-    void estLS();
-    void estPDCF();
-    void incDataInterval();
+    int incDataInterval();
+    void prepareCalc();
+    void finishWork();
+    void printFinalReport();
 
     QString dirName;
-
-    CommonMathTools *cmtObj;
-    LS *lsObj;
-    PDCF *pdcfObj;
-    QVector<QList<boost::numeric::ublas::matrix<double> > > Ar;
-    QVector<QVector<QVector<QVector<double> > > > pdcfResult;
 
     QTime t;
 
@@ -72,24 +53,29 @@ private:
     int shiftTo;
     int shiftStep;
     int window;
-    int dataFrom;
-    int dataTo;
-    int dataStep;
+    int dataStartFrom;
+    int dataStartTo;
+    int dataStartStep;
+    int dataEndFrom;
+    int dataEndTo;
+    int dataEndStep;
+    int dataNorm;
     int cpuCount;
     bool fromGUI;
+    int bonf;
 
     int currDataFrom;
     int currDataTo;
 
-    int time_elapsed;
-
     QFile log_out;
     QTextStream out_log;
 
+    QString currWindowDir;
+
+    int TSLenAbs;
+
 private slots:
     void setStatusMsg(QString);
-    void estLSFinished();
-    void estPDCFinished();
 
 };
 

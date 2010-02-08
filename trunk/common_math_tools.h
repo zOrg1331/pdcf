@@ -4,63 +4,107 @@
 #include <QtCore>
 
 #include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/ublas/lu.hpp>
+//#include <boost/numeric/ublas/lu.hpp>
+
+typedef boost::numeric::ublas::matrix<double> MATRIX;
+typedef boost::numeric::ublas::matrix<std::complex<double> > MATRIXcmplx;
+typedef boost::numeric::ublas::vector<double> VECTOR_D;
+typedef boost::numeric::ublas::vector<int> VECTOR_I;
+typedef boost::numeric::ublas::vector<MATRIX > VECTOR_M;
+typedef boost::numeric::ublas::vector<VECTOR_M > VECTOR_VM;
+typedef boost::numeric::ublas::vector<VECTOR_D > VECTOR_VD;
+typedef boost::numeric::ublas::vector<VECTOR_VD > VECTOR_VVD;
+typedef boost::numeric::ublas::vector<VECTOR_VVD > VECTOR_VVVD;
 
 class CommonMathTools : public QObject
 {
     Q_OBJECT
 
-    public:
+public:
     CommonMathTools();
 
-    int loadTS(const QStringList & fileNames);
+    int loadDataFromFiles(const QStringList & fileNames,
+                          const int dataFrom = 0, const int dataTo = 0, const int dataNorm = 0);
 
-    int getTScount();
+    int getTScount() { return tsCount; }
+    int getTSlen() {
+        if ((currDataFrom == 0) && (currDataTo == 0)) return tsValues[0].size();
+        else return (currDataTo-currDataFrom);
+    }
+    int getTSlenAbs() { return tsValues[0].size(); }
 
-    int getTSlen();
+    double getMean(const int tsNum) { return tsMean[tsNum]; }
+    double getDisp(const int tsNum) { return tsDisp[tsNum]; }
+    double getStdDeviation(const int tsNum) { return tsStdDev[tsNum]; }
 
-    int getTSlenAbs();
+    double getTSvalue(const int TSNum,
+                      const int num)
+    {
+        if (dataNorm) return getTSvalueNorm(TSNum, num);
+        int tsLen = tsValues[0].size();
+        if ((currDataFrom == 0) && (currDataTo == 0)) {
+            if ((num >= 0) && (num < tsLen)) return tsValues[TSNum][num];
+            else return 0;
+        } else {
+            if (((num+currDataFrom) >= 0) && (num < currDataTo))
+                return tsValues[TSNum][num+currDataFrom];
+            else return 0;
+        }
+    }
 
-    double getTSvalue(const int & TSNum,
-                      const int & num);
+    double getTSvalueNorm(const int TSNum,
+                          const int num)
+    {
+        if (!dataNorm) return getTSvalue(TSNum, num);
+        int tsLen = tsValues[0].size();
+        if ((currDataFrom == 0) && (currDataTo == 0)) {
+            if ((num >= 0) && (num < tsLen)) return tsValuesNorm[TSNum][num];
+            else return 0;
+        } else {
+            if (((num+currDataFrom) >= 0) && (num < currDataTo))
+                return tsValuesNorm[TSNum][num+currDataFrom];
+            else return 0;
+        }
+    }
 
-    double getTSvalueNorm(const int & TSNum,
-                          const int & num);
+    int gaussSolve(const MATRIX& A,
+                   const VECTOR_D& B,
+                   VECTOR_D& X);
 
-    int gaussSolve(const boost::numeric::ublas::matrix<double>& A,
-                   const boost::numeric::ublas::vector<double>& B,
-                   boost::numeric::ublas::vector<double>& X);
+    int calcInverseMatrix(const MATRIX& A,
+                          MATRIX& B);
 
-    int calcInverseMatrix(const boost::numeric::ublas::matrix<double>& A,
-                          boost::numeric::ublas::matrix<double>& B);
-
-    int calcDeterminant(const boost::numeric::ublas::matrix<double>& A,
+    int calcDeterminant(const MATRIX& A,
                         double & Det);
 
-    int calcResiduals(const QList<boost::numeric::ublas::matrix<double> >& Ar,
-                      const QVector<int> & Ps,
-                      const QVector<int> & Ss,
-                      const int & Sh,
-                      QVector<QVector<double> > & Residuals);
+    int calcResiduals(const VECTOR_M & ar_coeffs,
+                      const int dimension,
+                      const VECTOR_I & ts_nums,
+                      const int shift,
+                      VECTOR_VD & residuals);
 
-    double calcStdDeviation(const QVector<double> & ts);
+    void setDataWindow(const int dataFrom, const int dataTo);
 
-    void setDataWindow(int dataFrom, int dataTo);
+    void lls_solve(const int base_ts_index,
+                   const VECTOR_I & tsIndexes,
+                   const int dimension,
+                   VECTOR_D *ar_coeffs);
 
 private:
+    void calcStats();
     void normalizeTS();
 
-    QStringList timeseries;
-    QVector<QVector<double> > timeseriesValues;
-    QVector<QVector<double> > timeseriesValuesNorm;
-    QVector<double> stdDeviation;
-    QVector<double> dispersion;
-    QVector<double> mean;
-    QVector<int> tsLen;
-    int timeseriesCount;
+    VECTOR_VD tsValues;
+    VECTOR_VD tsValuesNorm;
+    VECTOR_D tsStdDev;
+    VECTOR_D tsDisp;
+    VECTOR_D tsMean;
+    int tsCount;
 
     int currDataFrom;
     int currDataTo;
+    
+    int dataNorm;
 
 signals:
     void infoMsg(QString);

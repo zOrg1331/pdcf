@@ -2,212 +2,126 @@
 
 #include "common_math_tools.h"
 
-#include "calccrow.h"
-
-LS::LS() {
+LS::LS()
+{
 
 }
 
 void LS::setParams(const QString & baseDir_,
                    CommonMathTools *cmtObj_,
-                   const int & P_from_,
-                   const int & P_to_,
-                   const int & P_inc_,
-                   const int & S_from_,
-                   const int & S_to_,
-                   const int & S_inc_,
-                   // const matrix<double> & Lags_,
-                   // const matrix<double> & Shifts_,
-                   QVector<QList<matrix<double> > > *ls_coeffs_list_,
-                   const int & cpuCount_) {
+                   const int dimension_,
+                   const int shift_,
+                   VECTOR_M *arCoeffsVector_)
+{
     baseDir = baseDir_;
     cmtObj = cmtObj_;
-    P_from = P_from_;
-    P_to = P_to_;
-    P_inc = P_inc_;
-    S_from = S_from_;
-    S_to = S_to_;
-    S_inc = S_inc_;
-    // Lags = Lags_;
-    // Shifts = Shifts_;
-    ls_coeffs_list = ls_coeffs_list_;
-    cpuCount = cpuCount_;
+    dimension = dimension_;
+    shift = shift_;
+    arCoeffsVector = arCoeffsVector_;
 }
 
-void LS::run() {
+void LS::startCalc()
+{
     calcLS();
 }
 
-double LS::calcPhi(const int & TSNum,
-                   const int & Nu,
-                   const int & P,
-                   const int & S,
-                   const int & index,
-                   const int & num) {
+int LS::calcLS()
+{
+    int M = cmtObj->getTScount();
 
-    if (Nu == 1) {
+    int coeffsNum = dimension*M;
 
-        double x1 = 0;
-        if (index == -1) {
-            //                x1 = cmtObj->getTSvalue(TSNum, num-S);
-            x1 = cmtObj->getTSvalueNorm(TSNum, num/*-S*/);
-            return x1;
-        }
-
-        int ip = index/P;
-        //            x1 = cmtObj->getTSvalue(ip,
-        //                                    num-
-        //                                    //Lags(TSNum, ip)*
-        //                                    (index-ip*P+1)/*-
-        //                                    Shifts(TSNum, ip)*/-S);
-        if (ip == TSNum) {
-            x1 = cmtObj->getTSvalueNorm(ip,
-                                        num-
-                                        //Lags(TSNum, ip)*
-                                        (index-ip*P+1)/*-
-                                                        Shifts(TSNum, ip)*/);
-            return x1;
-        } else {
-            x1 = cmtObj->getTSvalueNorm(ip,
-                                        num-
-                                        //Lags(TSNum, ip)*
-                                        (index-ip*P+1)/*-
-                                                        Shifts(TSNum, ip)*/-S);
-            return x1;
-        }
-    } else {
-        return 0;
+    VECTOR_M arCoeffsVectorTmp;
+    arCoeffsVectorTmp.resize(dimension);
+    for (unsigned int i = 0; i < arCoeffsVectorTmp.size(); i++) {
+        MATRIX t(M, M);
+        arCoeffsVectorTmp[i] = t;
     }
-}
 
-int LS::calcLS() {
-
-    int Pi = 0;
-    for (int P = P_from; P <= P_to; P += P_inc) {
-        for (int Sh = S_from; Sh != (S_to+S_inc); Sh += S_inc) {
-            int M = cmtObj->getTScount();
-            int N = cmtObj->getTSlen();
-
-            int coeffsNum = P*M;
-            QList<matrix<double> > Ar;
-            for (int i = 0; i < P; i++) {
-                matrix<double> Ari(M, M);
-                for (int j = 0; j < M; j++) {
-                    for (int k = 0; k < M; k++) {
-                        Ari(j, k) = 0.0;
-                    }
-                }
-                Ar.append(Ari);
+    for (int TSNum = 0; TSNum < M; TSNum++) {
+        VECTOR_I tsIndexes;
+        tsIndexes.resize(M-1);
+        for (int i = 0, j = 0; i < M; i++) {
+            if (i != TSNum) {
+                tsIndexes[j] = i;
+                j++;
             }
+        }
+        VECTOR_D arCoeffs;
+        arCoeffs.resize(coeffsNum);
 
-            for (int TSNum = 0; TSNum < M; TSNum++) {
+        cmtObj->lls_solve(TSNum, tsIndexes, dimension, &arCoeffs);
 
-                matrix<double> C (coeffsNum, coeffsNum);
-                for (int j = 0; j < coeffsNum; j++) {
-                    for (int k = 0; k < coeffsNum; k++) {
-                        C(j, k) = 0.0;
-                    }
+        emit infoMsg(QString("LS: P=%2, Sh=%3 solving matrix equation for TS = %1 finished")
+                     .arg(TSNum).arg(dimension).arg(shift));
+        for (int i = 0; i < coeffsNum; i++) {
+            //                    if (i < P) {
+            //                        Ar[i](TSNum, 0) = Res.at(i);
+            //                    } else if (i >= P) {
+            //                        Ar[i-(i/P)*P](TSNum, i/P) = Res.at(i);
+            //                    }
+//            if ((TSNum == 1)) {
+//            }
+//            int i_dim = i/dimension;
+//            int i_ost = i - i_dim*dimension;
+//            if (i_ost%M == 0) {
+//                arCoeffsVectorTmp[i_dim](TSNum, TSNum) = arCoeffs[i];
+//            } else {
+//                int i1 = i_ost-M*M*(i_ost/(M*M));
+//                if ((i1-(i1/M)*M) > TSNum) {
+//                    arCoeffsVectorTmp[i_dim](TSNum, i1-(i1/M)*M) = arCoeffs[i];
+//                } else {
+//                    arCoeffsVectorTmp[i_dim](TSNum, (i1-(i1/M)*M)-1) = arCoeffs[i];
+//                }
+//            }
+            //            arCoeffsVectorTmp[i%dimension](TSNum, i%M) = arCoeffs[i];
+
+            int dim = i%dimension;
+            int ts_1 = TSNum;
+            int ts_2 = 0;
+            if (i < dimension) {
+                ts_2 = TSNum;
+            } else {
+                ts_2 = i/dimension;
+                if (i/dimension > TSNum) {
+                    ts_2 = i/dimension;
+                } else {
+                    ts_2 = i/dimension - 1;
                 }
-                vector<double> B (coeffsNum);
-                for (int j = 0; j < coeffsNum; j++) {
-                    B(j) = 0.0;
-                }
-
-                // генерируем матрицу C
-                emit infoMsg(QString("LS: P=%1, Sh=%2 prepairing matrix").arg(P).arg(Sh));
-                int threadCount = cpuCount;
-                if (threadCount < 1) threadCount = 1;
-                for (int row = 0; row < coeffsNum; row += threadCount) {
-                    QVector<CalcCRow *> threads;
-                    for (int thr_i = 0; thr_i < threadCount; thr_i++) {
-                        if ((row+thr_i) < coeffsNum) {
-                            CalcCRow *thr = new CalcCRow(cmtObj, TSNum, 1, P,
-														 Sh, M, /* Lags, Shifts, */
-                                                         row+thr_i,
-                                                         N, &C);
-                            threads.append(thr);
-                            thr->start();
-                        }
-                    }
-                    for (int thr_i = 0; thr_i < threads.count(); thr_i++) {
-                        threads.at(thr_i)->wait();
-                    }
-                    QString str = QString("LS: P=%3, Sh=%4, prepearing matrix for TS=%5: estimated %1 of %2 coeffs")
-                        .arg(row+threadCount)
-                        .arg(coeffsNum)
-                        .arg(P)
-                        .arg(Sh)
-                        .arg(TSNum);
-                    emit infoMsg(str);
-                    for (int thr_i = 0; thr_i < threads.count(); thr_i++) {
-                        delete threads[thr_i];
-                    }
-
-                }
-
-                QString str = QString("LS: P=%2, Sh=%3 working with TS: %1").arg(TSNum+1).arg(P).arg(Sh);
-                emit infoMsg(str);
-
-                for (int row = 0; row < coeffsNum; row++) {
-                    double summB = 0;
-                    double x1B, x2B;
-
-                    for (int n = 0; n < N; n++) {
-                        x1B = calcPhi(TSNum, 1, P, Sh, row, n);
-                        x2B = calcPhi(TSNum, 1, P, Sh,  -1, n);
-                        summB += x1B*x2B;
-                    }
-                    B(row) = summB;
-                    QString str1 = QString("LS: P=%3, Sh=%4 estimated: %1 of %2 coeffs").arg(row+1).arg(coeffsNum).arg(P).arg(Sh);
-                    emit infoMsg(str1);
-                }
-
-                vector<double> Res(coeffsNum);
-                for (int i = 0; i < coeffsNum; i++) Res(i) = 0.0;
-
-                str = QString("LS: P=%2, Sh=%3 solving matrix equation for TS = %1").arg(TSNum).arg(P).arg(Sh);
-                emit infoMsg(str);
-                if (cmtObj->gaussSolve(C, B, Res) == -1) {
-                    emit infoMsg("cannot calc coeffs");
-                    return -1;
-                }
-                str = QString("LS: P=%2, Sh=%3 solving matrix equation for TS = %1 finished").arg(TSNum).arg(P).arg(Sh);
-                emit infoMsg(str);
-                for (int i = 0; i < coeffsNum; i++) {
-                    if (i < P) {
-                        Ar[i](TSNum, 0) = Res(i);
-                    } else if (i >= P) {
-                        Ar[i-(i/P)*P](TSNum, i/P) = Res(i);
-                    }
-                }
-
             }
-            QVector<int> Ps;
-            for (int i = 0; i < P; i++) Ps << (i+1);
-            QVector<int> Ss;
-            for (int i = 0; i < M; i++) Ss << i;
-            QVector<QVector<double> > Residuals;
-
-            cmtObj->calcResiduals(Ar, Ps, Ss, Sh, Residuals);
-
-            for (int ts = 0; ts < M; ts++) {
-                QFile res_out(QString("./%1/residuals_p=%2_s=%3_ts=%4.txt")
-                              .arg(baseDir)
-                              .arg(P)
-                              .arg(Sh)
-                              .arg(ts));
-                if (!res_out.open(QIODevice::WriteOnly | QIODevice::Text))
-                    return -1;
-
-                QTextStream out_res(&res_out);
-                for (int i = 0; i < Residuals.at(ts).count(); i++) {
-                    out_res << QString("%1\n").arg(Residuals.at(ts).at(i), 13, 'E', 6, ' ');
-                }
-                res_out.close();
-            }
-            (*ls_coeffs_list)[Pi] = Ar;
-            Pi++;
+//            qDebug() << "TSNum" << TSNum << "i" << i << "coeff" << arCoeffs[i];
+//            qDebug() << "dim" << dim << "ts_1" << ts_1 << "ts_2" << ts_2;
+            arCoeffsVectorTmp[dim](ts_1, ts_2) = arCoeffs[i];
+            
+//            if (i < dimension) {
+//                arCoeffsVectorTmp[i](TSNum, TSNum) = arCoeffs[i];
+//            } else if (i >= dimension) {
+//                arCoeffsVectorTmp[i%dimension](TSNum, M-TSNum-1) = arCoeffs[i];
+//            }
         }
     }
+    VECTOR_I tsIndexes;
+    tsIndexes.resize(M);
+    for (int i = 0; i < M; i++) tsIndexes[i] = i;
+    VECTOR_VD residuals;
+
+    cmtObj->calcResiduals(arCoeffsVectorTmp, dimension, tsIndexes, shift, residuals);
+
+    for (int ts = 0; ts < M; ts++) {
+        QFile res_out(QString("./%1/residuals_p=%2_s=%3_ts=%4.txt")
+                      .arg(baseDir)
+                      .arg(dimension)
+                      .arg(shift)
+                      .arg(ts));
+        if (!res_out.open(QIODevice::WriteOnly | QIODevice::Text))
+            return -1;
+
+        QTextStream out_res(&res_out);
+        for (unsigned int i = 0; i < residuals[ts].size(); i++) {
+            out_res << QString("%1\n").arg(residuals[ts][i], 13, 'E', 6, ' ');
+        }
+        res_out.close();
+    }
+    (*arCoeffsVector) = arCoeffsVectorTmp;
     return 0;
 }

@@ -1,15 +1,15 @@
 #include "calccrow.h"
 
 CalcCRow::CalcCRow(CommonMathTools *cmtObj_,
-                   const int & TSNum_,
-                   const int & Nu_,
-                   const int & P_,
-                   const int & S_,
-                   const int & M_,
+                   const int TSNum_,
+                   const int Nu_,
+                   const int P_,
+                   const int S_,
+                   const int M_,
                    // const matrix<double> & Lags_,
                    // const matrix<double> & Shifts_,
-                   const int & row_,
-                   const int & N_,
+                   const int row_,
+                   const int N_,
                    matrix<double> *C_) {
     cmtObj = cmtObj_;
     TSNum = TSNum_;
@@ -24,14 +24,14 @@ CalcCRow::CalcCRow(CommonMathTools *cmtObj_,
     C = C_;
 }
 
-double CalcCRow::calcPhi(const int & index,
-                         const int & num) {
+double CalcCRow::calcPhi(const int index,
+                         const int num) {
 
     if (Nu == 1) {
 
         if (index == -1) {
             //                x1 = cmtObj->getTSvalue(TSNum, num-S);
-            return cmtObj->getTSvalueNorm(TSNum, num/*-S*/);
+            return cmtObj->getTSvalueNorm(TSNum, num);
         }
 
         //            x1 = cmtObj->getTSvalue(ip,
@@ -60,7 +60,7 @@ double CalcCRow::calcPhi(const int & index,
 }
 
 void CalcCRow::run() {
-	double summC = 0;
+    double summC = 0;
     for (int col = 0; col < P*M; col++) {
         summC = 0;
         for (int n = 0; n < N; n++) {
