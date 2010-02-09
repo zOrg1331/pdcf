@@ -1,10 +1,10 @@
 
-QT += gui
-CONFIG += gui
+#QT += gui
+#CONFIG += gui
 
 # to disable graphical user interface uncomment here
-#QT -= gui
-#CONFIG -= gui
+QT -= gui
+CONFIG -= gui
 
 TARGET = pdcf
 CONFIG -= app_bundle
@@ -16,7 +16,8 @@ SOURCES += main.cpp \
     common_math_tools.cpp \
     calccrow.cpp \
     calcrblock.cpp \
-    pdcf_shell.cpp
+    pdcf_shell.cpp \
+    pdcfcalc.cpp
 
 gui {
     SOURCES += mainwindow.cpp
@@ -27,7 +28,8 @@ HEADERS += pdcf.h \
     common_math_tools.h \
     calccrow.h \
     calcrblock.h \
-    pdcf_shell.h
+    pdcf_shell.h \
+    pdcfcalc.h
 
 gui {
     HEADERS += mainwindow.h
