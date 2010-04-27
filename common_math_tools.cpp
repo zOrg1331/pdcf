@@ -13,7 +13,83 @@ CommonMathTools::CommonMathTools()
 }
 
 int CommonMathTools::loadDataFromFiles(const QStringList & fileNames,
-                                       const int dataFrom, const int dataTo, const int dataNorm_)
+                                       const int dataNorm_)
+{
+    dataNorm = dataNorm_;
+    
+    tsCount = fileNames.count();
+
+    QVector<QFile *> files;
+    files.resize(tsCount);
+    for (int i = 0; i < tsCount; i++) {
+        QFile *file = new QFile(fileNames.at(i));
+        if (!file->open(QIODevice::ReadOnly)) {
+            emit infoMsg(QString("cannot open file: %1").arg(fileNames.at(i)));
+            return -1;
+        }
+        files[i] = file;
+    }
+
+    tsStdDev.resize(tsCount);
+    tsDisp.resize(tsCount);
+    tsMean.resize(tsCount);
+
+    tsValues.resize(tsCount);
+    tsValuesNorm.resize(tsCount);
+    
+    for (int i = 0; i < tsCount; i++) {
+        int line = 0;
+        QString str;
+        bool ok;
+        double currNum = 0;
+        
+        QVector<double> tmpVec;
+        while (!files.at(i)->atEnd()) {
+            str = files.at(i)->readLine();
+            str = str.split(' ').last();
+            currNum = str.toDouble(&ok);
+            if (!ok) {
+                emit infoMsg(QString("garbage at line %1 in file: %2")
+                             .arg(line).arg(fileNames.at(i)));
+                return -1;
+            }
+            tmpVec.append(currNum);
+            line++;
+        }
+        tsValues[i].resize(tmpVec.size());
+        for (unsigned int j = 0; j < tsValues[i].size(); j++) {
+            tsValues[i][j] = tmpVec.at(j);
+        }
+    }
+    
+    for (int i = 0; i < tsCount; i++) {
+        files[i]->close();
+    }
+
+    for (int i = 0; i < tsCount; i++) {
+        delete files[i];
+    }
+
+    // проверяем, одинаковой ли длины файлы
+    for (int i = 1; i < tsCount; i++) {
+        if (tsValues[i].size() != tsValues[i-1].size()) {
+            emit infoMsg("timeseries has different lengths");
+            return -1;
+        }
+    }
+
+    calcStats();
+
+    // отнормируем ряды
+    normalizeTS();
+
+    return 0;
+}
+
+int CommonMathTools::loadDataFromFiles(const QStringList & fileNames,
+                                       const VECTOR_I &dataFrom,
+                                       const VECTOR_I &dataTo,
+                                       const int dataNorm_)
 {
     dataNorm = dataNorm_;
     
@@ -37,60 +113,33 @@ int CommonMathTools::loadDataFromFiles(const QStringList & fileNames,
     tsValues.resize(tsCount);
     tsValuesNorm.resize(tsCount);
 
-    if ((dataFrom == 0) && (dataTo == 0)) {
-        for (int i = 0; i < tsCount; i++) {
-            int line = 0;
-            QString str;
-            bool ok;
-            double currNum = 0;
-
-            QVector<double> tmpVec;
-            while (!files.at(i)->atEnd()) {
-                str = files.at(i)->readLine();
-                str = str.split(' ').last();
-                currNum = str.toDouble(&ok);
-                if (!ok) {
-                    emit infoMsg(QString("garbage at line %1 in file: %2")
-                                 .arg(line).arg(fileNames.at(i)));
-                    return -1;
-                }
-                tmpVec.append(currNum);
-                line++;
-            }
-            tsValues[i].resize(tmpVec.size());
-            for (unsigned int j = 0; j < tsValues[i].size(); j++) {
-                tsValues[i][j] = tmpVec.at(j);
-            }
+    for (int i = 0; i < tsCount; i++) {
+        int line = 0;
+        QString str;
+        bool ok;
+        double currNum = 0;
+        
+        tsValues[i].resize(dataTo[i] - dataFrom[i]);
+        int k = 0;
+        for (int j = 0; j < dataFrom[i]; j++) {
+            files.at(i)->readLine();
+            line++;
         }
-    } else {
-        for (int i = 0; i < tsCount; i++) {
-            int line = 0;
-            QString str;
-            bool ok;
-            double currNum = 0;
-
-            tsValues[i].resize(dataTo - dataFrom);
-            int k = 0;
-            for (int j = 0; j < dataFrom; j++) {
-                files.at(i)->readLine();
-                line++;
+        while (k < (dataTo[i] - dataFrom[i])) {
+            str = files.at(i)->readLine();
+            str = str.split(' ').last();
+            currNum = str.toDouble(&ok);
+            if (!ok) {
+                emit infoMsg(QString("garbage at line %1 in file: %2")
+                             .arg(line).arg(fileNames.at(i)));
+                return -1;
             }
-            while (k < (dataTo - dataFrom)) {
-                str = files.at(i)->readLine();
-                str = str.split(' ').last();
-                currNum = str.toDouble(&ok);
-                if (!ok) {
-                    emit infoMsg(QString("garbage at line %1 in file: %2")
-                                 .arg(line).arg(fileNames.at(i)));
-                    return -1;
-                }
-                tsValues[i][k] = currNum;
-                line++;
-                k++;
-            }
+            tsValues[i][k] = currNum;
+            line++;
+            k++;
         }
     }
-
+    
     for (int i = 0; i < tsCount; i++) {
         files[i]->close();
     }
