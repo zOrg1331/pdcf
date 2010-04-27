@@ -24,7 +24,12 @@ public:
     CommonMathTools();
 
     int loadDataFromFiles(const QStringList & fileNames,
-                          const int dataFrom = 0, const int dataTo = 0, const int dataNorm = 0);
+                          const VECTOR_I & dataFrom,
+                          const VECTOR_I & dataTo,
+                          const int dataNorm = 0);
+    
+    int loadDataFromFiles(const QStringList & fileNames,
+                          const int dataNorm = 0);
 
     int getTScount() { return tsCount; }
     int getTSlen() {
