@@ -10,6 +10,7 @@ typedef boost::numeric::ublas::matrix<double> MATRIX;
 typedef boost::numeric::ublas::matrix<std::complex<double> > MATRIXcmplx;
 typedef boost::numeric::ublas::vector<double> VECTOR_D;
 typedef boost::numeric::ublas::vector<int> VECTOR_I;
+typedef boost::numeric::ublas::vector<VECTOR_I > VECTOR_VI;
 typedef boost::numeric::ublas::vector<MATRIX > VECTOR_M;
 typedef boost::numeric::ublas::vector<VECTOR_M > VECTOR_VM;
 typedef boost::numeric::ublas::vector<VECTOR_D > VECTOR_VD;
@@ -27,7 +28,7 @@ public:
                           const VECTOR_I & dataFrom,
                           const VECTOR_I & dataTo,
                           const int dataNorm = 0);
-    
+
     int loadDataFromFiles(const QStringList & fileNames,
                           const int dataNorm = 0);
 
@@ -95,9 +96,23 @@ public:
                    const int dimension,
                    VECTOR_D *ar_coeffs);
 
+    double getBasisFuncValue(int Pi, int dimension,
+                             int base_ts_index, const VECTOR_I &tsIndexes,
+                             int Ni);
+
+    void lls_solve_ts1(const int base_ts_index,
+                       const int dimension,
+                       VECTOR_D *ar_coeffs,
+                       int order = 1);
+
+    double getBasisFuncValue_ts1(int Pi, int dimension, int order,
+                                 int base_ts_index,
+                                 int Ni);
+
 private:
     void calcStats();
     void normalizeTS();
+    void prepearePowers(int dimension, int order);
 
     VECTOR_VD tsValues;
     VECTOR_VD tsValuesNorm;
@@ -108,8 +123,10 @@ private:
 
     int currDataFrom;
     int currDataTo;
-    
+
     int dataNorm;
+
+    QVector< QVector<int> > powers;
 
 signals:
     void infoMsg(QString);
