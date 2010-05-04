@@ -1,8 +1,8 @@
 #include "common_math_tools.h"
 
 #include <boost/numeric/ublas/lu.hpp>
-
 #include <boost/math/tools/stats.hpp>
+#include <boost/math/special_functions/factorials.hpp>
 
 #include "pcg.hpp"
 
@@ -16,7 +16,7 @@ int CommonMathTools::loadDataFromFiles(const QStringList & fileNames,
                                        const int dataNorm_)
 {
     dataNorm = dataNorm_;
-    
+
     tsCount = fileNames.count();
 
     QVector<QFile *> files;
@@ -36,13 +36,13 @@ int CommonMathTools::loadDataFromFiles(const QStringList & fileNames,
 
     tsValues.resize(tsCount);
     tsValuesNorm.resize(tsCount);
-    
+
     for (int i = 0; i < tsCount; i++) {
         int line = 0;
         QString str;
         bool ok;
         double currNum = 0;
-        
+
         QVector<double> tmpVec;
         while (!files.at(i)->atEnd()) {
             str = files.at(i)->readLine();
@@ -61,7 +61,7 @@ int CommonMathTools::loadDataFromFiles(const QStringList & fileNames,
             tsValues[i][j] = tmpVec.at(j);
         }
     }
-    
+
     for (int i = 0; i < tsCount; i++) {
         files[i]->close();
     }
@@ -92,7 +92,7 @@ int CommonMathTools::loadDataFromFiles(const QStringList & fileNames,
                                        const int dataNorm_)
 {
     dataNorm = dataNorm_;
-    
+
     tsCount = fileNames.count();
 
     QVector<QFile *> files;
@@ -118,7 +118,7 @@ int CommonMathTools::loadDataFromFiles(const QStringList & fileNames,
         QString str;
         bool ok;
         double currNum = 0;
-        
+
         tsValues[i].resize(dataTo[i] - dataFrom[i]);
         int k = 0;
         for (int j = 0; j < dataFrom[i]; j++) {
@@ -139,7 +139,7 @@ int CommonMathTools::loadDataFromFiles(const QStringList & fileNames,
             k++;
         }
     }
-    
+
     for (int i = 0; i < tsCount; i++) {
         files[i]->close();
     }
@@ -327,27 +327,14 @@ void CommonMathTools::lls_solve(int base_ts_index,
     for (unsigned int i = 0; i < C.size(); i++)
         C(i) = 0;
 
-    int ts1_idx = 0, ts2_idx = 0;
-    int x1_idx = 0, x2_idx = 0;
-
     for (int Ni = dimension; Ni < tsLen; Ni++) {
         for (int Pi = 0; Pi < coeffs_cnt; Pi++) {
             for (int Pj = 0; Pj < coeffs_cnt; Pj++) {
-                ts1_idx = (Pi < dimension) ? base_ts_index :
-                          tsIndexes[(Pi - dimension)/dimension];
-                ts2_idx = (Pj < dimension) ? base_ts_index :
-                          tsIndexes[(Pj - dimension)/dimension];
-
-                x1_idx = Pi%dimension + 1;
-                x2_idx = Pj%dimension + 1;
-
-                A(Pi, Pj) += getTSvalueNorm(ts1_idx, Ni-x1_idx)*getTSvalueNorm(ts2_idx, Ni-x2_idx);
+                A(Pi, Pj) += getBasisFuncValue(Pi, dimension, base_ts_index, tsIndexes, Ni)
+                             *getBasisFuncValue(Pj, dimension, base_ts_index, tsIndexes, Ni);
             }
-            ts1_idx = (Pi < dimension) ? base_ts_index :
-                      tsIndexes[(Pi - dimension)/dimension];
-            x1_idx = Pi%dimension + 1;
-
-            B(Pi) += getTSvalueNorm(ts1_idx, Ni-x1_idx)*getTSvalueNorm(base_ts_index, Ni);
+            B(Pi) += getBasisFuncValue(Pi, dimension, base_ts_index, tsIndexes, Ni)
+                     *getTSvalueNorm(base_ts_index, Ni);
         }
     }
 
@@ -355,4 +342,103 @@ void CommonMathTools::lls_solve(int base_ts_index,
 
     for (int i = 0; i < coeffs_cnt; i++)
         (*ar_coeffs)[i] = C[i];
+}
+
+double CommonMathTools::getBasisFuncValue(int Pi, int dimension,
+                                          int base_ts_index, const VECTOR_I &tsIndexes,
+                                          int Ni)
+{
+    int ts_idx = (Pi < dimension) ? base_ts_index :
+                 tsIndexes[(Pi - dimension)/dimension];
+    int x_idx = Pi%dimension + 1;
+    return getTSvalueNorm(ts_idx, Ni-x_idx);
+}
+
+void CommonMathTools::lls_solve_ts1(int base_ts_index,
+                                    int dimension,
+                                    VECTOR_D *ar_coeffs,
+                                    int order)
+{
+    int tsLen = getTSlen();
+    int coeffs_cnt = boost::math::factorial<double>(dimension*1 + order)
+                     /(boost::math::factorial<double>(dimension*1)*boost::math::factorial<double>(order));
+
+    prepearePowers(dimension, order);
+
+    MATRIX A(coeffs_cnt, coeffs_cnt);
+    for (unsigned int i = 0; i < A.size1(); i++)
+        for (unsigned int j = 0; j < A.size2(); j++)
+            A(i, j) = 0;
+
+    VECTOR_D B(coeffs_cnt);
+    for (unsigned int i = 0; i < B.size(); i++)
+        B(i) = 0;
+
+    VECTOR_D C(coeffs_cnt);
+    for (unsigned int i = 0; i < C.size(); i++)
+        C(i) = 0;
+
+    for (int Ni = dimension; Ni < tsLen; Ni++) {
+        for (int Pi = 0; Pi < coeffs_cnt; Pi++) {
+            for (int Pj = 0; Pj < coeffs_cnt; Pj++) {
+                A(Pi, Pj) += getBasisFuncValue_ts1(Pi, dimension, order, base_ts_index, Ni)
+                             *getBasisFuncValue_ts1(Pj, dimension, order, base_ts_index, Ni);
+            }
+            B(Pi) += getBasisFuncValue_ts1(Pi, dimension, order, base_ts_index, Ni)
+                     *getTSvalueNorm(base_ts_index, Ni);
+        }
+    }
+
+    gaussSolve(A, B, C);
+
+    for (int i = 0; i < coeffs_cnt; i++)
+        (*ar_coeffs)[i] = C[i];
+}
+
+double CommonMathTools::getBasisFuncValue_ts1(int Pi, int dimension, int order,
+                                              int base_ts_index,
+                                              int Ni)
+{
+    double res = 1;
+    for (int i = 0; i < dimension; i++) {
+        if (powers.at(Pi).at(i) == 0) continue;
+        if (powers.at(Pi).at(i) == 1) {
+            res *= getTSvalueNorm(base_ts_index, Ni-(i+1));
+            continue;
+        }
+        if (powers.at(Pi).at(i) == 2) {
+            res *= getTSvalueNorm(base_ts_index, Ni-(i+1))*getTSvalueNorm(base_ts_index, Ni-(i+1));
+            continue;
+        }
+        res *= pow(getTSvalueNorm(base_ts_index, Ni-(i+1)),
+                   powers.at(Pi).at(i));
+    }
+    return res;
+}
+
+void CommonMathTools::prepearePowers(int dimension, int order)
+{
+    powers.resize(0);
+    int m = dimension;
+    for (int n = 0; n <= order; n++) {
+        QVector<int> powersTmp;
+        powersTmp.resize(dimension);
+        powersTmp.fill(0);
+        while (true) {
+            int sum = 0;
+            for (int i = 0; i < m; i++) sum += powersTmp[i];
+            if (sum == n) powers << powersTmp;
+            
+            powersTmp[0]++;
+            for (int i = 0; i < m-1; i++) {
+                if (powersTmp[i] >= (n+1)) {
+                    powersTmp[i] = 0;
+                    powersTmp[i+1]++;
+                }
+                else break;
+            }
+            
+            if (powersTmp[m-1] >= (n+1)) break;
+        }
+    }
 }
