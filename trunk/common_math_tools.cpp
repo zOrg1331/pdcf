@@ -299,6 +299,43 @@ int CommonMathTools::calcResiduals(const VECTOR_M & ar_coeffs,
     return 0;
 }
 
+int CommonMathTools::calcResiduals_ts1(const VECTOR_D & ar_coeffs,
+                                       const int dimension,
+                                       const int order,
+                                       const int base_ts,
+                                       VECTOR_D & residuals)
+{
+    int tsLen = getTSlen();
+
+    int coeffsCount = boost::math::factorial<double>(dimension*1 + order)
+                     /(boost::math::factorial<double>(dimension*1)*boost::math::factorial<double>(order));
+    
+    prepearePowers(dimension, order);
+    
+    // готовим вектор остатков моделей
+    VECTOR_D Res;
+    Res.resize(tsLen - dimension);
+
+    for (int i = dimension; i < tsLen; i++) {
+        double x_mine = 0;
+        
+        // вычислим значение x_mine временного ряда base_ts в точке i,
+        // определяемое коэффициентами АР-моделей ar_coeffs
+        for (int c = 0; c < coeffsCount; c++) {
+            x_mine += getBasisFuncValue_ts1(c, dimension, order, base_ts, i)
+                      * ar_coeffs[c];
+        }
+        
+        double x_real = getTSvalueNorm(base_ts, i);
+        Res[i - dimension] = x_real - x_mine;
+    }
+
+    // возвращаем результат
+    residuals = Res;
+
+    return 0;
+}
+
 void CommonMathTools::setDataWindow(const int dataFrom, const int dataTo)
 {
     currDataFrom = dataFrom;

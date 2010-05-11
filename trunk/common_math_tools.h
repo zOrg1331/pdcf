@@ -89,6 +89,12 @@ public:
                       const int shift,
                       VECTOR_VD & residuals);
 
+    int calcResiduals_ts1(const VECTOR_D & ar_coeffs,
+                          const int dimension,
+                          const int order,
+                          const int base_ts,
+                          VECTOR_D & residuals);
+
     void setDataWindow(const int dataFrom, const int dataTo);
 
     void lls_solve(const int base_ts_index,
