@@ -308,24 +308,24 @@ int CommonMathTools::calcResiduals_ts1(const VECTOR_D & ar_coeffs,
     int tsLen = getTSlen();
 
     int coeffsCount = boost::math::factorial<double>(dimension*1 + order)
-                     /(boost::math::factorial<double>(dimension*1)*boost::math::factorial<double>(order));
-    
+                      /(boost::math::factorial<double>(dimension*1)*boost::math::factorial<double>(order));
+
     prepearePowers(dimension, order);
-    
+
     // готовим вектор остатков моделей
     VECTOR_D Res;
     Res.resize(tsLen - dimension);
 
     for (int i = dimension; i < tsLen; i++) {
         double x_mine = 0;
-        
+
         // вычислим значение x_mine временного ряда base_ts в точке i,
         // определяемое коэффициентами АР-моделей ar_coeffs
         for (int c = 0; c < coeffsCount; c++) {
             x_mine += getBasisFuncValue_ts1(c, dimension, order, base_ts, i)
                       * ar_coeffs[c];
         }
-        
+
         double x_real = getTSvalueNorm(base_ts, i);
         Res[i - dimension] = x_real - x_mine;
     }
@@ -465,7 +465,7 @@ void CommonMathTools::prepearePowers(int dimension, int order)
             int sum = 0;
             for (int i = 0; i < m; i++) sum += powersTmp[i];
             if (sum == n) powers << powersTmp;
-            
+
             powersTmp[0]++;
             for (int i = 0; i < m-1; i++) {
                 if (powersTmp[i] >= (n+1)) {
@@ -474,8 +474,85 @@ void CommonMathTools::prepearePowers(int dimension, int order)
                 }
                 else break;
             }
-            
+
             if (powersTmp[m-1] >= (n+1)) break;
         }
     }
+}
+
+//функция инверсии битов относительно медианы. p - порядок, т.е. общее количество бит
+////например, если p=4 (числа i отображены в двоичном представлении)
+////p(0001,4) = 1000
+////p(0011,4) = 1100
+////p(0111,4) = 1110
+////p(1010,4) = 0101
+////данный алгоритм требуется для подготовки исходного массива быстрого Фурье преобразования
+////порядка p (например, для 1024-точечной схемы p=10)
+int CommonMathTools::reverse(int i, int p)
+{
+    int shift = p-1;
+    unsigned int low_mask = 1;
+    unsigned int high_mask = 1 << shift;
+    unsigned int res;
+
+    for (res=0; shift>=0; low_mask <<= 1, high_mask >>= 1, shift -= 2)
+        res |= ((i & low_mask) << shift) | ((i & high_mask) >> shift);
+    return res;
+}
+
+//быстрое преобразование Фурье
+//p - порядок задачи, т.е для 1024-точечного пребразования Фурье p=10 (2^p = N)
+//in - входной массив отсчетов сигнала размерности 2^p
+//-----------------------------
+//Возможная оптимизация: алгоритм написан с учетом правильного масштабирования
+//спектральных составляющих. Если это не нужно, то можно убрать умножение
+//отсчетов сигнала на 2 при подготовке исходных данных, и умножение на 0.5
+//в самом внутреннем цикле преобразования.
+VECTOR_C CommonMathTools::fft(int p, const VECTOR_D &in)
+{
+    int n_max = 1 << p;
+    std::complex<double> w,foo;
+    VECTOR_C out;
+    double pi2 = 2 * 3.1415926535897932384626433832795;
+    double dummy;
+    //Nd2 - это N делить на 2
+    //kpNd2 - это k плюс Nd2
+    int n,Nd2,k,kpNd2,m;
+
+    //обнулим массив спектральных отсчетов
+    out.resize(n_max);
+    for (int i = 0 ; i < n_max; i++) {
+        out[i].real(0);
+        out[i].imag(0);
+    }
+
+    //готовим массив исходных данных (p-мерная сортировка по четности)
+    for (n=0;n<n_max;n++) {
+        k = reverse(n,p);
+        out[k].real(in[n]*2);
+    }
+
+    //собственно само преобразование
+    for (n=2, Nd2=1; n<=n_max; Nd2=n, n+=n)
+    {
+        for (k=0;k<Nd2;k++) {
+            //w := cexp(-I*pi2*k/n);
+            dummy = pi2*k/n;
+            w.real(cos(dummy));
+            w.imag(-sin(dummy));
+
+            for(m=k; m < n_max; m +=n) {
+                kpNd2 = m + Nd2;
+                foo.real(w.real()*out[kpNd2].real()-w.imag()*out[kpNd2].imag());
+                foo.imag(w.real()*out[kpNd2].imag()+w.imag()*out[kpNd2].real());
+
+                out[kpNd2].real() = (out[m].real() - foo.real())*0.5;
+                out[kpNd2].imag() = (out[m].imag() - foo.imag())*0.5;
+
+                out[m].real() = (out[m].real() + foo.real())*0.5;
+                out[m].imag() = (out[m].imag() + foo.imag())*0.5;
+            }
+        }
+    }
+    return out;
 }
