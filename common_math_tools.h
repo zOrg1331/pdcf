@@ -10,6 +10,7 @@ typedef boost::numeric::ublas::matrix<double> MATRIX;
 typedef boost::numeric::ublas::matrix<std::complex<double> > MATRIXcmplx;
 typedef boost::numeric::ublas::vector<double> VECTOR_D;
 typedef boost::numeric::ublas::vector<int> VECTOR_I;
+typedef boost::numeric::ublas::vector<std::complex<double> > VECTOR_C;
 typedef boost::numeric::ublas::vector<VECTOR_I > VECTOR_VI;
 typedef boost::numeric::ublas::vector<MATRIX > VECTOR_M;
 typedef boost::numeric::ublas::vector<VECTOR_M > VECTOR_VM;
@@ -115,10 +116,13 @@ public:
                                  int base_ts_index,
                                  int Ni);
 
+    VECTOR_C fft(int p, const VECTOR_D &in);
+
 private:
     void calcStats();
     void normalizeTS();
     void prepearePowers(int dimension, int order);
+    int reverse(int i, int p);
 
     VECTOR_VD tsValues;
     VECTOR_VD tsValuesNorm;
